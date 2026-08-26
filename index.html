@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Dirosan Sivarajah</title>
 <meta name="description" content="Dirosan Sivarajah — IT Support Engineer, Bristol.">
-<link rel="icon" href="/favicon.ico">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,500;9..144,600&family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500&display=swap" rel="stylesheet">
@@ -200,6 +199,7 @@
   // ---------- Starfield ----------
   const canvas = document.getElementById('starfield');
   const ctx = canvas.getContext('2d');
+  const enterWrap = document.getElementById('enterWrap');
   let W, H, DPR;
   function resize(){
     DPR = Math.min(window.devicePixelRatio || 1, 2);
@@ -224,7 +224,10 @@
   }
 
   // The hidden star — fixed relative position, distinct pulse, no parallax
-  const hidden = { xr: 0.815, yr: 0.24, r: 2.6, clicks: 0, needed: 3, unlocked:false };
+  const hidden = { xr: 0.815, yr: 0.24, r: 3.6, clicks: 0, needed: 3, unlocked:false };
+  const hiddenHitRadius = 22;
+  const shipCollisionRadius = 30;
+  let shipTouchingStar = false;
 
   let mouseX = W/2, mouseY = H/2;
   window.addEventListener('mousemove', (e)=>{ mouseX = e.clientX; mouseY = e.clientY; });
@@ -316,6 +319,66 @@
     }
   }
 
+  // ---------- Decorative wandering ships & astronauts (atmosphere only) ----------
+  const decorObjects = [];
+  function maybeSpawnDecor(){
+    if(reduceMotion || decorObjects.length >= 2) return;
+    if(Math.random() < 0.001){
+      const dir = Math.random() < 0.5 ? 1 : -1;
+      const type = Math.random() < 0.5 ? 'ship' : 'astro';
+      decorObjects.push({
+        type,
+        x: dir === 1 ? -20 : W + 20,
+        y: Math.random()*H*0.7 + H*0.1,
+        vx: dir * (type === 'ship' ? (0.5 + Math.random()*0.3) : (0.15 + Math.random()*0.1)),
+        bob: Math.random()*Math.PI*2,
+        rot: dir === 1 ? 0 : Math.PI
+      });
+    }
+  }
+  function drawDecor(){
+    maybeSpawnDecor();
+    for(let i=decorObjects.length-1; i>=0; i--){
+      const d = decorObjects[i];
+      d.x += d.vx * 2;
+      d.bob += 0.02;
+      d.y += Math.sin(d.bob) * 0.4;
+
+      if(d.type === 'ship'){
+        ctx.save();
+        ctx.translate(d.x, d.y);
+        ctx.rotate(d.rot);
+        ctx.beginPath();
+        ctx.moveTo(7,0); ctx.lineTo(-5,4); ctx.lineTo(-2,0); ctx.lineTo(-5,-4);
+        ctx.closePath();
+        ctx.fillStyle = 'rgba(138,124,240,0.5)';
+        ctx.fill();
+        const blink = 0.3 + 0.5*Math.max(0, Math.sin(d.bob*3));
+        ctx.beginPath();
+        ctx.arc(-5, 0, 1.1, 0, Math.PI*2);
+        ctx.fillStyle = `rgba(138,124,240,${blink})`;
+        ctx.fill();
+        ctx.restore();
+      } else {
+        d.rot += 0.015;
+        ctx.save();
+        ctx.translate(d.x, d.y);
+        ctx.rotate(d.rot);
+        ctx.beginPath();
+        ctx.ellipse(0, 0, 3, 4.5, 0, 0, Math.PI*2);
+        ctx.fillStyle = 'rgba(236,239,251,0.32)';
+        ctx.fill();
+        ctx.beginPath();
+        ctx.arc(0, -6, 2.4, 0, Math.PI*2);
+        ctx.fillStyle = 'rgba(236,239,251,0.38)';
+        ctx.fill();
+        ctx.restore();
+      }
+
+      if(d.x < -30 || d.x > W + 30) decorObjects.splice(i,1);
+    }
+  }
+
   let t = 0;
   function draw(){
     t += reduceMotion ? 0 : 0.016;
@@ -404,9 +467,19 @@
       ctx.stroke();
     }
 
+    // decorative wandering ships and astronauts
+    drawDecor();
+
   // hidden star — fixed position, no parallax, steady pulse
     const hx = hidden.xr * W, hy = hidden.yr * H;
     const pulse = 0.6 + 0.4*Math.sin(t*1.6);
+    if(!hidden.unlocked){
+      // soft halo, wider than the star itself, to widen its visual footprint
+      ctx.beginPath();
+      ctx.arc(hx, hy, 9 + pulse*2, 0, Math.PI*2);
+      ctx.fillStyle = `rgba(227,172,63,${0.08 + pulse*0.05})`;
+      ctx.fill();
+    }
     ctx.beginPath();
     ctx.arc(hx, hy, hidden.r + pulse*1.2, 0, Math.PI*2);
     ctx.fillStyle = hidden.unlocked ? 'rgba(227,172,63,0.95)' : `rgba(227,172,63,${0.5+pulse*0.4})`;
@@ -423,24 +496,36 @@
     updateShip();
     drawShip();
 
+    // flying the ship into the hidden star counts the same as a click on it
+    if(!hidden.unlocked){
+      const shipDist = Math.hypot(ship.x - hx, ship.y - hy);
+      const touchingNow = shipDist < shipCollisionRadius;
+      if(touchingNow && !shipTouchingStar) registerHiddenHit(hx, hy);
+      shipTouchingStar = touchingNow;
+    }
+
     requestAnimationFrame(draw);
   }
   draw();
 
+  // shared by clicks and ship collisions — one hit toward the 3 needed to unlock
+  function registerHiddenHit(hx, hy){
+    if(hidden.unlocked) return;
+    hidden.clicks++;
+    ripples.push({ x: hx, y: hy, r: 4, alpha: 0.85, color: '227,172,63' });
+    if(hidden.clicks >= hidden.needed){
+      hidden.unlocked = true;
+      enterWrap.classList.add('show');
+    }
+  }
+
   // click detection on hidden star
-  const enterWrap = document.getElementById('enterWrap');
   canvas.addEventListener('click', (e)=>{
     const rect = canvas.getBoundingClientRect();
     const cx = e.clientX - rect.left, cy = e.clientY - rect.top;
     const hx = hidden.xr * W, hy = hidden.yr * H;
     const dist = Math.hypot(cx-hx, cy-hy);
-    if(dist < 14 && !hidden.unlocked){
-      hidden.clicks++;
-      if(hidden.clicks >= hidden.needed){
-        hidden.unlocked = true;
-        enterWrap.classList.add('show');
-      }
-    }
+    if(dist < hiddenHitRadius) registerHiddenHit(hx, hy);
   });
 
   // fake coordinates, ticks periodically for atmosphere
