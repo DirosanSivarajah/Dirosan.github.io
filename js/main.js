@@ -1,9 +1,9 @@
-import { createStars, drawStars } from './starfield.js';
-import { createScenery, drawScenery } from './scenery.js';
-import { createShip, updateShip, drawShip } from './ship.js';
-import { createFlyingObjects, updateAndDrawFlyingObjects, checkSatelliteHit } from './flying-objects.js';
-import { createHiddenStar, drawHiddenStar, checkHiddenStarHit, registerHiddenStarHit } from './hidden-star.js';
-import { revealEnterButton, enterHub, exitHub, startLiveSyncTicker } from './hub.js';
+import { createStars, drawStars } from './starfield.js?v=3';
+import { createScenery, drawScenery } from './scenery.js?v=3';
+import { createShip, updateShip, drawShip } from './ship.js?v=3';
+import { createFlyingObjects, updateAndDrawFlyingObjects, checkSatelliteHit } from './flying-objects.js?v=3';
+import { createHiddenStar, drawHiddenStar, checkHiddenStarHit, registerHiddenStarHit } from './hidden-star.js?v=3';
+import { revealEnterButton, enterHub, exitHub, startLiveSyncTicker } from './hub.js?v=3';
 
 const canvas = document.getElementById('starfield');
 const ctx = canvas.getContext('2d');
