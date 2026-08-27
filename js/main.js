@@ -29,8 +29,8 @@ const state = {
 
 function resize() {
   state.DPR = Math.min(window.devicePixelRatio || 1, 2);
-  state.W = canvas.clientWidth = window.innerWidth;
-  state.H = canvas.clientHeight = window.innerHeight;
+  state.W = window.innerWidth;
+  state.H = window.innerHeight;
   canvas.width = state.W * state.DPR;
   canvas.height = state.H * state.DPR;
   ctx.setTransform(state.DPR, 0, 0, state.DPR, 0, 0);
