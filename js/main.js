@@ -2,8 +2,8 @@ import { createStars, drawStars } from './starfield.js?v=3';
 import { createScenery, drawScenery } from './scenery.js?v=3';
 import { createShip, updateShip, drawShip } from './ship.js?v=3';
 import { createFlyingObjects, updateAndDrawFlyingObjects, checkSatelliteHit } from './flying-objects.js?v=3';
-import { createHiddenStar, drawHiddenStar, checkHiddenStarHit, registerHiddenStarHit } from './hidden-star.js?v=3';
-import { revealEnterButton, enterHub, exitHub, startLiveSyncTicker } from './hub.js?v=3';
+// import { createHiddenStar, drawHiddenStar, checkHiddenStarHit, registerHiddenStarHit } from './hidden-star.js?v=3';
+import { /* revealEnterButton, */ enterHub, exitHub, startLiveSyncTicker } from './hub.js?v=3';
 
 const canvas = document.getElementById('starfield');
 const ctx = canvas.getContext('2d');
@@ -49,7 +49,7 @@ const stars = createStars(260, state.W, state.H);
 const scenery = createScenery();
 const ship = createShip(state.W, state.H);
 const flyingObjects = createFlyingObjects(state.W, state.H);
-const hiddenStar = createHiddenStar();
+// const hiddenStar = createHiddenStar();
 
 const ripples = [];
 
@@ -75,18 +75,18 @@ canvas.addEventListener('click', (e) => {
   const cx = e.clientX - rect.left;
   const cy = e.clientY - rect.top;
 
-  if (checkHiddenStarHit(hiddenStar, cx, cy, state)) {
-    const result = registerHiddenStarHit(hiddenStar);
-    ripples.push({
-      x: hiddenStar.xr * state.W,
-      y: hiddenStar.yr * state.H,
-      r: 6,
-      alpha: 0.9,
-      color: hiddenStar.color
-    });
-    if (result.justUnlocked) revealEnterButton(enterWrap);
-    return;
-  }
+  // if (checkHiddenStarHit(hiddenStar, cx, cy, state)) {
+  //   const result = registerHiddenStarHit(hiddenStar);
+  //   ripples.push({
+  //     x: hiddenStar.xr * state.W,
+  //     y: hiddenStar.yr * state.H,
+  //     r: 6,
+  //     alpha: 0.9,
+  //     color: hiddenStar.color
+  //   });
+  //   if (result.justUnlocked) revealEnterButton(enterWrap);
+  //   return;
+  // }
 
   const satelliteHit = checkSatelliteHit(flyingObjects, cx, cy);
   if (satelliteHit) {
@@ -118,7 +118,7 @@ function loop() {
   drawStars(ctx, stars, state);
   updateAndDrawFlyingObjects(ctx, flyingObjects, state);
   drawRipples();
-  drawHiddenStar(ctx, hiddenStar, state);
+  // drawHiddenStar(ctx, hiddenStar, state);
   updateShip(ship, state);
   drawShip(ctx, ship);
 
@@ -128,6 +128,10 @@ loop();
 
 enterBtn.addEventListener('click', () => enterHub(landing, hub, warpFlash));
 backBtn.addEventListener('click', () => exitHub(landing, hub, warpFlash));
+
+// TEMP dev shortcut — remove once the hidden-star trigger is re-enabled
+const devJumpBtn = document.getElementById('devJumpBtn');
+if (devJumpBtn) devJumpBtn.addEventListener('click', () => enterHub(landing, hub, warpFlash));
 
 startLiveSyncTicker(liveClock);
 
