@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Dirosan Sivarajah</title>
-<meta name="description" content="Dirosan Sivarajah — IT Support Engineer, Bristol.">
+<link rel="icon" href="/favicon.ico">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,500;9..144,600&family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500&display=swap" rel="stylesheet">
@@ -32,21 +32,37 @@
   #landing{ position:relative; width:100%; height:100vh; overflow:hidden; }
   #starfield{ position:absolute; inset:0; display:block; cursor:default; }
 
+  .vignette{
+    position:absolute; inset:0; pointer-events:none;
+    background:radial-gradient(circle at 50% 50%, rgba(10,14,26,0) 60%, rgba(10,14,26,0.4) 100%);
+  }
+  .grain{
+    position:absolute; inset:0; pointer-events:none; opacity:0.05; mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
   .hero-overlay{
     position:absolute; inset:0; display:flex; flex-direction:column;
     justify-content:center; align-items:center; text-align:center;
     pointer-events:none; padding:0 24px;
   }
-  .hero-eyebrow{ margin-bottom:18px; opacity:0.8; }
+  .hero-eyebrow, .hero-title, .hero-sub{ opacity:0; }
+  .hero-eyebrow{ margin-bottom:18px; animation:fadeSlideUp 0.9s ease forwards; }
   .hero-title{
     font-family:'Fraunces',serif; font-weight:500; font-optical-sizing:auto;
     font-size:clamp(2.4rem, 7vw, 5.2rem); line-height:1.05; margin:0;
     color:var(--starlight);
+    animation:fadeSlideUp 1s ease forwards; animation-delay:0.15s;
   }
   .hero-title em{ font-style:italic; color:var(--amber); font-weight:300; }
   .hero-sub{
     margin-top:20px; font-size:15px; color:var(--dim); max-width:420px;
     line-height:1.6;
+    animation:fadeSlideUp 1s ease forwards; animation-delay:0.35s;
+  }
+  @keyframes fadeSlideUp{
+    from{ opacity:0; transform:translateY(14px); }
+    to{ opacity:1; transform:translateY(0); }
   }
 
   .coords{
@@ -74,7 +90,7 @@
     position:fixed; inset:0; background:var(--starlight); opacity:0; pointer-events:none;
     transition:opacity 0.5s ease; z-index:50;
   }
-  #warp-flash.fire{ opacity:1; transition:opacity 0.25s ease; }
+  #warp-flash.fire{ opacity:1; transition:opacity 0.2s ease; }
 
   /* ---------- HUB ---------- */
   #hub{
@@ -90,6 +106,7 @@
     display:flex; align-items:center; gap:8px;
   }
   .hub-back:hover{ color:var(--starlight); }
+  .hub-back:focus-visible{ outline:2px solid var(--starlight); outline-offset:3px; }
   .hub-back svg{ width:12px; height:12px; }
 
   .card-grid{
@@ -100,7 +117,16 @@
     background:linear-gradient(160deg, var(--panel), #0d1322);
     border:1px solid var(--panel-edge); border-radius:6px; padding:28px 26px;
     position:relative; overflow:hidden; transition:transform 0.35s ease, border-color 0.35s ease, box-shadow 0.35s ease;
-    display:block; text-decoration:none; color:inherit;
+    display:block; text-decoration:none; color:inherit; opacity:0;
+  }
+  #hub.show .card{ animation:cardIn 0.6s ease forwards; }
+  #hub.show .card:nth-child(1){ animation-delay:0.05s; }
+  #hub.show .card:nth-child(2){ animation-delay:0.15s; }
+  #hub.show .card:nth-child(3){ animation-delay:0.25s; }
+  #hub.show .card:nth-child(4){ animation-delay:0.35s; }
+  @keyframes cardIn{
+    from{ opacity:0; transform:translateY(16px); }
+    to{ opacity:1; transform:translateY(0); }
   }
   .card::before{
     content:''; position:absolute; top:0; left:0; width:100%; height:2px;
@@ -115,11 +141,19 @@
   .pulse-dot{ width:6px; height:6px; border-radius:50%; background:var(--teal); box-shadow:0 0 0 0 rgba(79,195,176,0.6); animation:pulse 2.4s infinite; }
   @keyframes pulse{ 0%{ box-shadow:0 0 0 0 rgba(79,195,176,0.45);} 70%{ box-shadow:0 0 0 6px rgba(79,195,176,0);} 100%{ box-shadow:0 0 0 0 rgba(79,195,176,0);} }
 
-  .card.placeholder{ opacity:0.55; border-style:dashed; }
+  .card.placeholder{ border-style:dashed; }
+  #hub.show .card.placeholder{ animation-name:cardInDim; }
+  @keyframes cardInDim{
+    from{ opacity:0; transform:translateY(16px); }
+    to{ opacity:0.55; transform:translateY(0); }
+  }
   .card.placeholder:hover{ transform:none; box-shadow:none; }
 
   @media (prefers-reduced-motion: reduce){
     *{ animation:none !important; transition:none !important; }
+    .hero-eyebrow, .hero-title, .hero-sub{ opacity:1 !important; transform:none !important; }
+    .card{ opacity:1 !important; transform:none !important; }
+    .card.placeholder{ opacity:0.55 !important; }
   }
 </style>
 </head>
@@ -130,6 +164,8 @@
 <!-- ============ LANDING ============ -->
 <section id="landing">
   <canvas id="starfield"></canvas>
+  <div class="vignette"></div>
+  <div class="grain"></div>
 
   <div class="hero-overlay">
     <div class="hero-eyebrow mono">Field notes — night sky, unmarked</div>
@@ -192,386 +228,6 @@
   </div>
 </section>
 
-<script>
-(function(){
-  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-  // ---------- Starfield ----------
-  const canvas = document.getElementById('starfield');
-  const ctx = canvas.getContext('2d');
-  const enterWrap = document.getElementById('enterWrap');
-  let W, H, DPR;
-  function resize(){
-    DPR = Math.min(window.devicePixelRatio || 1, 2);
-    W = canvas.clientWidth = window.innerWidth;
-    H = canvas.clientHeight = window.innerHeight;
-    canvas.width = W * DPR; canvas.height = H * DPR;
-    ctx.setTransform(DPR,0,0,DPR,0,0);
-  }
-  window.addEventListener('resize', resize);
-  resize();
-
-  const N = 220;
-  const stars = [];
-  for(let i=0;i<N;i++){
-    stars.push({
-      x: Math.random()*W, y: Math.random()*H,
-      r: Math.random()*1.4 + 0.3,
-      depth: Math.random()*0.6 + 0.2,
-      phase: Math.random()*Math.PI*2,
-      speed: Math.random()*0.02 + 0.008
-    });
-  }
-
-  // The hidden star — fixed relative position, distinct pulse, no parallax
-  const hidden = { xr: 0.815, yr: 0.24, r: 3.6, clicks: 0, needed: 3, unlocked:false };
-  const hiddenHitRadius = 22;
-  const shipCollisionRadius = 30;
-  let shipTouchingStar = false;
-
-  let mouseX = W/2, mouseY = H/2;
-  window.addEventListener('mousemove', (e)=>{ mouseX = e.clientX; mouseY = e.clientY; });
-
-  // ---------- Ship that trails the cursor ----------
-  const ship = { x: W/2, y: H/2, angle: 0, sparks: [] };
-  function updateShip(){
-    if(reduceMotion){ ship.x = mouseX; ship.y = mouseY; return; }
-    const prevX = ship.x, prevY = ship.y;
-    ship.x += (mouseX - ship.x) * 0.08;
-    ship.y += (mouseY - ship.y) * 0.08;
-    const dx = ship.x - prevX, dy = ship.y - prevY;
-    if(Math.hypot(dx,dy) > 0.15) ship.angle = Math.atan2(dy, dx);
-
-    // spawn a spark occasionally while moving
-    if(Math.hypot(dx,dy) > 0.3 && Math.random() < 0.6){
-      ship.sparks.push({
-        x: ship.x - Math.cos(ship.angle)*8,
-        y: ship.y - Math.sin(ship.angle)*8,
-        life: 1
-      });
-    }
-  }
-  function drawShip(){
-    // sparks first, behind the ship
-    for(let i=ship.sparks.length-1; i>=0; i--){
-      const sp = ship.sparks[i];
-      sp.life -= 0.03;
-      if(sp.life <= 0){ ship.sparks.splice(i,1); continue; }
-      ctx.beginPath();
-      ctx.arc(sp.x, sp.y, 1.4 * sp.life, 0, Math.PI*2);
-      ctx.fillStyle = `rgba(227,172,63,${sp.life*0.7})`;
-      ctx.fill();
-    }
-
-    ctx.save();
-    ctx.translate(ship.x, ship.y);
-    ctx.rotate(ship.angle);
-    ctx.beginPath();
-    ctx.moveTo(9, 0);
-    ctx.lineTo(-6, 5);
-    ctx.lineTo(-3, 0);
-    ctx.lineTo(-6, -5);
-    ctx.closePath();
-    ctx.fillStyle = 'rgba(236,239,251,0.9)';
-    ctx.fill();
-    ctx.restore();
-  }
-
-  // ---------- Click ripples ----------
-  const ripples = [];
-  canvas.addEventListener('click', (e)=>{
-    const rect = canvas.getBoundingClientRect();
-    const cx = e.clientX - rect.left, cy = e.clientY - rect.top;
-
-    if(satellite && Math.hypot(cx - satellite.x, cy - satellite.y) < 16){
-      ripples.push({ x: satellite.x, y: satellite.y, r: 0, alpha: 0.6, color: '79,195,176' });
-    } else {
-      ripples.push({ x: cx, y: cy, r: 0, alpha: 0.5, color: '227,172,63' });
-    }
-  });
-
-  // ---------- Satellite ----------
-  let satellite = null;
-  function maybeSpawnSatellite(){
-    if(reduceMotion || satellite) return;
-    if(Math.random() < 0.0015){
-      const dir = Math.random() < 0.5 ? 1 : -1;
-      satellite = {
-        x: dir === 1 ? -20 : W + 20,
-        y: Math.random()*H*0.45 + H*0.08,
-        vx: dir * (0.35 + Math.random()*0.15),
-        blink: 0,
-        trail: []
-      };
-    }
-  }
-  const shootingStars = [];
-  function maybeSpawnShootingStar(){
-    if(reduceMotion) return;
-    if(Math.random() < 0.006 && shootingStars.length < 2){
-      const startX = Math.random()*W*0.6 + W*0.2;
-      shootingStars.push({
-        x: startX, y: -10,
-        vx: (Math.random()*1.2 + 1.6) * (Math.random()<0.5?-1:1),
-        vy: Math.random()*2 + 2.4,
-        life: 1
-      });
-    }
-  }
-
-  // ---------- Decorative wandering ships & astronauts (atmosphere only) ----------
-  const decorObjects = [];
-  function maybeSpawnDecor(){
-    if(reduceMotion || decorObjects.length >= 2) return;
-    if(Math.random() < 0.001){
-      const dir = Math.random() < 0.5 ? 1 : -1;
-      const type = Math.random() < 0.5 ? 'ship' : 'astro';
-      decorObjects.push({
-        type,
-        x: dir === 1 ? -20 : W + 20,
-        y: Math.random()*H*0.7 + H*0.1,
-        vx: dir * (type === 'ship' ? (0.5 + Math.random()*0.3) : (0.15 + Math.random()*0.1)),
-        bob: Math.random()*Math.PI*2,
-        rot: dir === 1 ? 0 : Math.PI
-      });
-    }
-  }
-  function drawDecor(){
-    maybeSpawnDecor();
-    for(let i=decorObjects.length-1; i>=0; i--){
-      const d = decorObjects[i];
-      d.x += d.vx * 2;
-      d.bob += 0.02;
-      d.y += Math.sin(d.bob) * 0.4;
-
-      if(d.type === 'ship'){
-        ctx.save();
-        ctx.translate(d.x, d.y);
-        ctx.rotate(d.rot);
-        ctx.beginPath();
-        ctx.moveTo(7,0); ctx.lineTo(-5,4); ctx.lineTo(-2,0); ctx.lineTo(-5,-4);
-        ctx.closePath();
-        ctx.fillStyle = 'rgba(138,124,240,0.5)';
-        ctx.fill();
-        const blink = 0.3 + 0.5*Math.max(0, Math.sin(d.bob*3));
-        ctx.beginPath();
-        ctx.arc(-5, 0, 1.1, 0, Math.PI*2);
-        ctx.fillStyle = `rgba(138,124,240,${blink})`;
-        ctx.fill();
-        ctx.restore();
-      } else {
-        d.rot += 0.015;
-        ctx.save();
-        ctx.translate(d.x, d.y);
-        ctx.rotate(d.rot);
-        ctx.beginPath();
-        ctx.ellipse(0, 0, 3, 4.5, 0, 0, Math.PI*2);
-        ctx.fillStyle = 'rgba(236,239,251,0.32)';
-        ctx.fill();
-        ctx.beginPath();
-        ctx.arc(0, -6, 2.4, 0, Math.PI*2);
-        ctx.fillStyle = 'rgba(236,239,251,0.38)';
-        ctx.fill();
-        ctx.restore();
-      }
-
-      if(d.x < -30 || d.x > W + 30) decorObjects.splice(i,1);
-    }
-  }
-
-  let t = 0;
-  function draw(){
-    t += reduceMotion ? 0 : 0.016;
-    ctx.clearRect(0,0,W,H);
-
-    // ambient gradient wash
-    const g = ctx.createRadialGradient(W*0.5,H*0.4,0,W*0.5,H*0.4,Math.max(W,H)*0.75);
-    g.addColorStop(0,'rgba(20,28,48,0.5)');
-    g.addColorStop(1,'rgba(10,14,26,0)');
-    ctx.fillStyle = g;
-    ctx.fillRect(0,0,W,H);
-
-    const px = (mouseX/W - 0.5);
-    const py = (mouseY/H - 0.5);
-
-    stars.forEach(s=>{
-      const twinkle = 0.55 + 0.45*Math.sin(t*2 + s.phase);
-      const dx = reduceMotion ? 0 : px * s.depth * 22;
-      const dy = reduceMotion ? 0 : py * s.depth * 22;
-      const sx = s.x + dx, sy = s.y + dy;
-
-      // proximity glow — stars near the cursor brighten and grow
-      const distToCursor = Math.hypot(sx - mouseX, sy - mouseY);
-      const proximity = Math.max(0, 1 - distToCursor / 140);
-      const boostedR = s.r + proximity * 2.2;
-      const boostedAlpha = Math.min(1, twinkle*0.85 + proximity*0.6);
-
-      ctx.beginPath();
-      ctx.arc(sx, sy, boostedR, 0, Math.PI*2);
-      ctx.fillStyle = `rgba(236,239,251,${boostedAlpha})`;
-      ctx.fill();
-    });
-
-    // click ripples
-    for(let i=ripples.length-1; i>=0; i--){
-      const rp = ripples[i];
-      rp.r += reduceMotion ? 0 : 2.6;
-      rp.alpha -= 0.018;
-      if(rp.alpha <= 0){ ripples.splice(i,1); continue; }
-      ctx.beginPath();
-      ctx.arc(rp.x, rp.y, rp.r, 0, Math.PI*2);
-      ctx.strokeStyle = `rgba(${rp.color},${rp.alpha})`;
-      ctx.lineWidth = 1.2;
-      ctx.stroke();
-    }
-
-    // satellite — slow drift, blinking light, thin trail
-    maybeSpawnSatellite();
-    if(satellite){
-      satellite.x += reduceMotion ? 0 : satellite.vx * 2;
-      satellite.blink += 0.05;
-      satellite.trail.push({x: satellite.x, y: satellite.y});
-      if(satellite.trail.length > 24) satellite.trail.shift();
-
-      // faint trail
-      ctx.beginPath();
-      satellite.trail.forEach((p,i)=>{
-        if(i===0) ctx.moveTo(p.x,p.y); else ctx.lineTo(p.x,p.y);
-      });
-      ctx.strokeStyle = 'rgba(79,195,176,0.18)';
-      ctx.lineWidth = 1;
-      ctx.stroke();
-
-      const blinkAlpha = 0.4 + 0.6*Math.max(0, Math.sin(satellite.blink));
-      ctx.beginPath();
-      ctx.arc(satellite.x, satellite.y, 2.2, 0, Math.PI*2);
-      ctx.fillStyle = `rgba(79,195,176,${blinkAlpha})`;
-      ctx.fill();
-
-      if(satellite.x < -30 || satellite.x > W + 30) satellite = null;
-    }
-
-    // shooting stars
-    maybeSpawnShootingStar();
-    for(let i=shootingStars.length-1; i>=0; i--){
-      const sh = shootingStars[i];
-      sh.x += reduceMotion ? 0 : sh.vx * 3;
-      sh.y += reduceMotion ? 0 : sh.vy * 3;
-      sh.life -= 0.012;
-      if(sh.life <= 0 || sh.y > H + 20){ shootingStars.splice(i,1); continue; }
-      ctx.beginPath();
-      ctx.moveTo(sh.x, sh.y);
-      ctx.lineTo(sh.x - sh.vx*14, sh.y - sh.vy*14);
-      ctx.strokeStyle = `rgba(236,239,251,${sh.life*0.8})`;
-      ctx.lineWidth = 1.4;
-      ctx.stroke();
-    }
-
-    // decorative wandering ships and astronauts
-    drawDecor();
-
-  // hidden star — fixed position, no parallax, steady pulse
-    const hx = hidden.xr * W, hy = hidden.yr * H;
-    const pulse = 0.6 + 0.4*Math.sin(t*1.6);
-    if(!hidden.unlocked){
-      // soft halo, wider than the star itself, to widen its visual footprint
-      ctx.beginPath();
-      ctx.arc(hx, hy, 9 + pulse*2, 0, Math.PI*2);
-      ctx.fillStyle = `rgba(227,172,63,${0.08 + pulse*0.05})`;
-      ctx.fill();
-    }
-    ctx.beginPath();
-    ctx.arc(hx, hy, hidden.r + pulse*1.2, 0, Math.PI*2);
-    ctx.fillStyle = hidden.unlocked ? 'rgba(227,172,63,0.95)' : `rgba(227,172,63,${0.5+pulse*0.4})`;
-    ctx.fill();
-    if(hidden.unlocked){
-      ctx.beginPath();
-      ctx.arc(hx, hy, 10 + pulse*4, 0, Math.PI*2);
-      ctx.strokeStyle = 'rgba(227,172,63,0.35)';
-      ctx.lineWidth = 1;
-      ctx.stroke();
-    }
-
-    // ship trailing the cursor
-    updateShip();
-    drawShip();
-
-    // flying the ship into the hidden star counts the same as a click on it
-    if(!hidden.unlocked){
-      const shipDist = Math.hypot(ship.x - hx, ship.y - hy);
-      const touchingNow = shipDist < shipCollisionRadius;
-      if(touchingNow && !shipTouchingStar) registerHiddenHit(hx, hy);
-      shipTouchingStar = touchingNow;
-    }
-
-    requestAnimationFrame(draw);
-  }
-  draw();
-
-  // shared by clicks and ship collisions — one hit toward the 3 needed to unlock
-  function registerHiddenHit(hx, hy){
-    if(hidden.unlocked) return;
-    hidden.clicks++;
-    ripples.push({ x: hx, y: hy, r: 4, alpha: 0.85, color: '227,172,63' });
-    if(hidden.clicks >= hidden.needed){
-      hidden.unlocked = true;
-      enterWrap.classList.add('show');
-    }
-  }
-
-  // click detection on hidden star
-  canvas.addEventListener('click', (e)=>{
-    const rect = canvas.getBoundingClientRect();
-    const cx = e.clientX - rect.left, cy = e.clientY - rect.top;
-    const hx = hidden.xr * W, hy = hidden.yr * H;
-    const dist = Math.hypot(cx-hx, cy-hy);
-    if(dist < hiddenHitRadius) registerHiddenHit(hx, hy);
-  });
-
-  // fake coordinates, ticks periodically for atmosphere
-  const coordA = document.getElementById('coord-a');
-  const coordB = document.getElementById('coord-b');
-  setInterval(()=>{
-    const h = String(Math.floor(Math.random()*24)).padStart(2,'0');
-    const m = String(Math.floor(Math.random()*60)).padStart(2,'0');
-    const s = String(Math.floor(Math.random()*60)).padStart(2,'0');
-    coordA.textContent = `RA ${h}h${m}m${s}s`;
-  }, 4000);
-
-  // ---------- Transition to hub ----------
-  const flash = document.getElementById('warp-flash');
-  const landing = document.getElementById('landing');
-  const hub = document.getElementById('hub');
-
-  document.getElementById('enterBtn').addEventListener('click', ()=>{
-    flash.classList.add('fire');
-    setTimeout(()=>{
-      landing.style.display = 'none';
-      hub.classList.add('show');
-      window.scrollTo(0,0);
-      flash.classList.remove('fire');
-    }, 260);
-  });
-
-  document.getElementById('backBtn').addEventListener('click', ()=>{
-    flash.classList.add('fire');
-    setTimeout(()=>{
-      hub.classList.remove('show');
-      landing.style.display = 'block';
-      flash.classList.remove('fire');
-    }, 260);
-  });
-
-  // ---------- Fake "live update" clock for Tonight's Watch ----------
-  let secs = 0;
-  const liveClock = document.getElementById('liveClock');
-  setInterval(()=>{
-    secs += 4;
-    if(secs > 40) secs = 0; // simulates a periodic re-sync
-    liveClock.textContent = `synced ${secs}s ago`;
-  }, 4000);
-})();
-</script>
-
+<script type="module" src="js/main.js"></script>
 </body>
 </html>
