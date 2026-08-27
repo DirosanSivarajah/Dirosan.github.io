@@ -96,6 +96,13 @@ export function drawHiddenStar(ctx, star, state) {
 
   star.rotation += state.reduceMotion ? 0 : 0.006;
 
+  // DEV MARKER — remove before final ship, just here for quick navigation while testing
+  ctx.beginPath();
+  ctx.arc(hx, hy, radius + 34, 0, Math.PI * 2);
+  ctx.strokeStyle = 'red';
+  ctx.lineWidth = 3;
+  ctx.stroke();
+
   // persistent ring, always visible, marks the spot even before the shape reads
   ctx.beginPath();
   ctx.arc(hx, hy, radius + 16, 0, Math.PI * 2);
