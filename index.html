@@ -7,230 +7,207 @@
 <link rel="icon" href="/favicon.ico">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,500;9..144,600&family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   :root{
-    --void:#0a0e1a;
-    --panel:#121a2c;
-    --panel-edge:#1e2a45;
-    --starlight:#eceffb;
-    --dim:#7c8aa8;
+    --bg:#050506;
+    --frame:#0e0d0b;
     --amber:#e3ac3f;
-    --amber-soft:rgba(227,172,63,0.35);
-    --violet:#8a7cf0;
-    --teal:#4fc3b0;
+    --amber-dim:#7a6430;
+    --ok:#6fcf97;
+    --dim:#5a5248;
+    --white:#f4ead2;
   }
   *{ box-sizing:border-box; }
-  html,body{ margin:0; padding:0; background:var(--void); color:var(--starlight); font-family:'Inter',sans-serif; overflow-x:hidden; }
-  ::selection{ background:var(--amber-soft); }
-
-  a, button{ font-family:inherit; }
-
-  .mono{ font-family:'IBM Plex Mono',monospace; letter-spacing:0.08em; text-transform:uppercase; font-size:11px; color:var(--dim); }
-
-  /* ---------- LANDING ---------- */
-  #landing{ position:relative; width:100%; height:100vh; overflow:hidden; }
-  #starfield{ position:absolute; inset:0; display:block; cursor:default; }
-
-  .vignette{
-    position:absolute; inset:0; pointer-events:none;
-    background:radial-gradient(circle at 50% 50%, rgba(10,14,26,0) 60%, rgba(10,14,26,0.4) 100%);
+  html,body{ margin:0; min-height:100vh; }
+  body{
+    background:#000; color:var(--amber);
+    font-family:'IBM Plex Mono',monospace; display:flex; align-items:center; justify-content:center;
+    padding:32px; flex-direction:column; gap:22px;
   }
-  .grain{
-    position:absolute; inset:0; pointer-events:none; opacity:0.05; mix-blend-mode:overlay;
-    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-  }
+  .desk{ display:flex; gap:22px; align-items:center; flex-wrap:wrap; justify-content:center; }
 
-  .hero-overlay{
-    position:absolute; inset:0; display:flex; flex-direction:column;
-    justify-content:center; align-items:center; text-align:center;
-    pointer-events:none; padding:0 24px;
+  .crt, .side-monitor{
+    position:relative; background:var(--bg); border:10px solid var(--frame); border-radius:14px;
+    box-shadow:0 30px 80px -20px rgba(0,0,0,0.8), inset 0 0 60px rgba(227,172,63,0.04);
+    overflow:hidden;
   }
-  .hero-eyebrow, .hero-title, .hero-sub{ opacity:0; }
-  .hero-eyebrow{ margin-bottom:18px; animation:fadeSlideUp 0.9s ease forwards; }
-  .hero-title{
-    font-family:'Fraunces',serif; font-weight:500; font-optical-sizing:auto;
-    font-size:clamp(2.4rem, 7vw, 5.2rem); line-height:1.05; margin:0;
-    color:var(--starlight);
-    animation:fadeSlideUp 1s ease forwards; animation-delay:0.15s;
+  .crt{ width:100%; max-width:700px; height:600px; padding:28px 34px; display:flex; flex-direction:column; }
+  .side-monitor{ width:230px; height:600px; padding:26px 20px; display:flex; flex-direction:column; }
+
+  .crt::before, .side-monitor::before{
+    content:''; position:absolute; inset:0; pointer-events:none; z-index:5;
+    background:repeating-linear-gradient(rgba(0,0,0,0) 0px, rgba(0,0,0,0) 2px, rgba(0,0,0,0.12) 3px);
+    mix-blend-mode:multiply;
   }
-  .hero-title em{ font-style:italic; color:var(--amber); font-weight:300; }
-  .hero-sub{
-    margin-top:20px; font-size:15px; color:var(--dim); max-width:420px;
-    line-height:1.6;
-    animation:fadeSlideUp 1s ease forwards; animation-delay:0.35s;
-  }
-  @keyframes fadeSlideUp{
-    from{ opacity:0; transform:translateY(14px); }
-    to{ opacity:1; transform:translateY(0); }
+  .crt::after, .side-monitor::after{
+    content:''; position:absolute; inset:0; pointer-events:none; z-index:4;
+    background:radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,0.45) 100%);
   }
 
-  .coords{
-    position:absolute; bottom:28px; left:28px; pointer-events:none;
-  }
-  .coords span{ display:block; }
+  .titlebar{ display:flex; justify-content:space-between; color:var(--dim); font-size:11px; letter-spacing:0.05em; margin-bottom:18px; flex-shrink:0; }
 
-  .enter-wrap{
-    position:absolute; bottom:64px; left:50%; transform:translateX(-50%) translateY(14px);
-    opacity:0; transition:opacity 0.9s ease, transform 0.9s ease; pointer-events:none;
-  }
-  .enter-wrap.show{ opacity:1; transform:translateX(-50%) translateY(0); pointer-events:auto; }
-  .enter-btn{
-    background:transparent; border:1px solid var(--amber-soft); color:var(--amber);
-    padding:13px 26px; border-radius:2px; font-family:'IBM Plex Mono',monospace;
-    font-size:12px; letter-spacing:0.12em; text-transform:uppercase; cursor:pointer;
-    transition:background 0.3s, border-color 0.3s, color 0.3s;
-  }
-  .enter-btn:hover, .enter-btn:focus-visible{
-    background:var(--amber); color:#1a1305; border-color:var(--amber);
-  }
-  .enter-btn:focus-visible{ outline:2px solid var(--starlight); outline-offset:3px; }
+  .line{ font-size:13px; line-height:1.9; white-space:pre-wrap; }
+  .tag-ok{ color:var(--ok); }
+  .tag-warn{ color:var(--amber); }
+  .dim{ color:var(--dim); }
+  .white{ color:var(--white); }
 
-  #warp-flash{
-    position:fixed; inset:0; background:var(--starlight); opacity:0; pointer-events:none;
-    transition:opacity 0.5s ease; z-index:50;
-  }
-  #warp-flash.fire{ opacity:1; transition:opacity 0.2s ease; }
+  .boot-line{ opacity:0; }
+  .boot-line.show{ opacity:1; animation:lineIn 0.3s ease; }
+  @keyframes lineIn{ from{ opacity:0; transform:translateY(3px); } to{ opacity:1; transform:translateY(0); } }
 
-  /* ---------- HUB ---------- */
-  #hub{
-    display:none; min-height:100vh; padding:70px 6vw 90px; position:relative;
-  }
-  #hub.show{ display:block; }
-  .hub-header{ max-width:640px; margin-bottom:56px; }
-  .hub-title{ font-family:'Fraunces',serif; font-weight:500; font-size:clamp(2rem,4.4vw,3.1rem); margin:14px 0 0; }
-  .hub-back{
-    position:absolute; top:28px; left:6vw; color:var(--dim); text-decoration:none;
-    font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:0.08em;
-    text-transform:uppercase; border:none; background:none; cursor:pointer;
-    display:flex; align-items:center; gap:8px;
-  }
-  .hub-back:hover{ color:var(--starlight); }
-  .hub-back:focus-visible{ outline:2px solid var(--starlight); outline-offset:3px; }
-  .hub-back svg{ width:12px; height:12px; }
+  .prompt-row{ display:flex; gap:8px; font-size:13px; margin-top:14px; flex-shrink:0; }
+  .cursor{ display:inline-block; width:8px; height:15px; background:var(--amber); animation:blink 1s step-end infinite; vertical-align:middle; }
+  @keyframes blink{ 50%{ opacity:0; } }
 
-  .card-grid{
-    display:grid; grid-template-columns:repeat(auto-fit,minmax(270px,1fr));
-    gap:22px; max-width:1200px;
+  .cmd-input{
+    flex:1; background:transparent; border:none; outline:none; color:var(--amber);
+    font-family:inherit; font-size:13px; caret-color:var(--amber); padding:0; min-width:0;
   }
-  .card{
-    background:linear-gradient(160deg, var(--panel), #0d1322);
-    border:1px solid var(--panel-edge); border-radius:6px; padding:28px 26px;
-    position:relative; overflow:hidden; transition:transform 0.35s ease, border-color 0.35s ease, box-shadow 0.35s ease;
-    display:block; text-decoration:none; color:inherit; opacity:0;
-  }
-  #hub.show .card{ animation:cardIn 0.6s ease forwards; }
-  #hub.show .card:nth-child(1){ animation-delay:0.05s; }
-  #hub.show .card:nth-child(2){ animation-delay:0.15s; }
-  #hub.show .card:nth-child(3){ animation-delay:0.25s; }
-  #hub.show .card:nth-child(4){ animation-delay:0.35s; }
-  @keyframes cardIn{
-    from{ opacity:0; transform:translateY(16px); }
-    to{ opacity:1; transform:translateY(0); }
-  }
-  .card::before{
-    content:''; position:absolute; top:0; left:0; width:100%; height:2px;
-    background:var(--accent, var(--amber)); opacity:0.7;
-  }
-  .card:hover{ transform:translateY(-4px); border-color:var(--panel-edge); box-shadow:0 18px 40px -20px rgba(0,0,0,0.6); }
-  .card:focus-visible{ outline:2px solid var(--starlight); outline-offset:3px; }
-  .card-icon{ width:30px; height:30px; margin-bottom:20px; color:var(--accent, var(--amber)); }
-  .card h3{ font-family:'Fraunces',serif; font-weight:500; font-size:1.3rem; margin:0 0 10px; }
-  .card p{ color:var(--dim); font-size:14px; line-height:1.6; margin:0 0 18px; }
-  .card-meta{ font-family:'IBM Plex Mono',monospace; font-size:10.5px; color:var(--dim); letter-spacing:0.06em; text-transform:uppercase; display:flex; align-items:center; gap:8px; }
-  .pulse-dot{ width:6px; height:6px; border-radius:50%; background:var(--teal); box-shadow:0 0 0 0 rgba(79,195,176,0.6); animation:pulse 2.4s infinite; }
-  @keyframes pulse{ 0%{ box-shadow:0 0 0 0 rgba(79,195,176,0.45);} 70%{ box-shadow:0 0 0 6px rgba(79,195,176,0);} 100%{ box-shadow:0 0 0 0 rgba(79,195,176,0);} }
+  .cmd-input::placeholder{ color:var(--dim); }
 
-  .card.placeholder{ border-style:dashed; }
-  #hub.show .card.placeholder{ animation-name:cardInDim; }
-  @keyframes cardInDim{
-    from{ opacity:0; transform:translateY(16px); }
-    to{ opacity:0.55; transform:translateY(0); }
-  }
-  .card.placeholder:hover{ transform:none; box-shadow:none; }
+  .session-log{ flex:1; min-height:0; overflow-y:auto; margin-top:8px; }
+  .session-log::-webkit-scrollbar{ width:5px; }
+  .session-log::-webkit-scrollbar-thumb{ background:#231d13; border-radius:3px; }
 
-  @media (prefers-reduced-motion: reduce){
-    *{ animation:none !important; transition:none !important; }
-    .hero-eyebrow, .hero-title, .hero-sub{ opacity:1 !important; transform:none !important; }
-    .card{ opacity:1 !important; transform:none !important; }
-    .card.placeholder{ opacity:0.55 !important; }
+  .odd-file{ cursor:pointer; color:var(--dim); transition:color 0.2s ease; }
+  .odd-file:hover{ color:var(--white); }
+  .odd-file.close{ color:var(--amber); }
+  .odd-file.found{ color:var(--ok); }
+
+  .granted{
+    margin-top:14px; padding:10px 16px; border:1px solid var(--amber-dim);
+    color:var(--amber); font-size:12px; letter-spacing:0.06em; display:inline-flex; align-items:center; gap:10px;
+    cursor:pointer; background:transparent; font-family:inherit; flex-shrink:0; width:fit-content;
+    opacity:0; transform:translateY(6px); transition:opacity 0.5s ease, transform 0.5s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+    pointer-events:none;
   }
+  .granted.show{ opacity:1; transform:translateY(0); pointer-events:auto; }
+  .granted:hover{ border-color:var(--amber); box-shadow:0 0 20px rgba(227,172,63,0.25); }
+  .granted:focus-visible{ outline:2px solid var(--white); outline-offset:3px; }
+
+  .boot-view{ display:flex; flex-direction:column; flex:1; min-height:0; }
+  .archive-view{ display:none; }
+  .archive-view.show{ display:block; }
+  .boot-view.hide{ display:none; }
+
+  .archive-header{ color:var(--dim); font-size:12px; margin-bottom:6px; }
+  table{ width:100%; border-collapse:collapse; font-size:12.5px; margin-top:10px; }
+  td{ padding:9px 6px; border-bottom:1px solid #17140f; }
+  tr.entry{ cursor:pointer; }
+  tr.entry:hover td{ background:rgba(227,172,63,0.06); color:var(--white); }
+  tr.entry.reserved{ cursor:default; color:var(--dim); }
+  tr.entry.reserved:hover td{ background:transparent; color:var(--dim); }
+  .perm{ color:var(--dim); }
+  .status-online{ color:var(--ok); }
+  .status-dash{ color:var(--dim); }
+
+  .sync-ring{ transform:rotate(-90deg); vertical-align:middle; margin-right:6px; }
+  .sync-ring-track{ fill:none; stroke:rgba(227,172,63,0.2); stroke-width:3; }
+  .sync-ring-fill{
+    fill:none; stroke:var(--amber); stroke-width:3; stroke-linecap:round;
+    stroke-dasharray:38; stroke-dashoffset:38; animation:syncFill 4s linear infinite;
+  }
+  @keyframes syncFill{ from{ stroke-dashoffset:38; } to{ stroke-dashoffset:0; } }
+
+  .back-line{ color:var(--dim); font-size:12px; margin-top:20px; cursor:pointer; display:inline-block; }
+  .back-line:hover{ color:var(--white); }
+
+  .feed-title{ font-size:10px; letter-spacing:0.08em; text-transform:uppercase; margin-bottom:10px; flex-shrink:0; }
+  .feed-list{ display:flex; flex-direction:column; gap:7px; overflow:hidden; flex:1; }
+  .feed-line{ font-size:10.5px; line-height:1.5; opacity:0; animation:feedIn 0.4s ease forwards; word-break:break-all; }
+  .feed-line.ok{ color:var(--ok); }
+  .feed-line.dim{ color:var(--amber-dim); }
+  @keyframes feedIn{ from{ opacity:0; transform:translateY(4px); } to{ opacity:1; transform:translateY(0); } }
+
+  @media (prefers-reduced-motion: reduce){ *{ animation:none !important; } .boot-line{ opacity:1 !important; } .feed-line{ opacity:1 !important; } }
 </style>
 </head>
 <body>
 
-<!-- TEMP dev shortcut — remove once the hidden-star trigger is re-enabled -->
-<button id="devJumpBtn" style="position:fixed; top:16px; right:16px; z-index:999; background:#b3123c; color:#fff; border:none; padding:8px 14px; border-radius:4px; font:bold 12px sans-serif; cursor:pointer;">DEV: Enter Archive</button>
-
-<div id="warp-flash"></div>
-
-<!-- ============ LANDING ============ -->
-<section id="landing">
-  <canvas id="starfield"></canvas>
-  <div class="vignette"></div>
-  <div class="grain"></div>
-
-  <div class="hero-overlay">
-    <div class="hero-eyebrow mono">Field notes — night sky, unmarked</div>
-    <h1 class="hero-title">You are looking<br>at <em>something</em> looking back.</h1>
-    <p class="hero-sub">Drift the sky. Somewhere in it, one point of light doesn't behave like the rest.</p>
-  </div>
-
-  <div class="coords mono">
-    <span id="coord-a">RA 00h00m00s</span>
-    <span id="coord-b">DEC +00°00'00"</span>
-  </div>
-
-  <div class="enter-wrap" id="enterWrap">
-    <button class="enter-btn" id="enterBtn">Enter the Archive →</button>
-  </div>
-</section>
-
-<!-- ============ HUB ============ -->
-<section id="hub">
-  <button class="hub-back" id="backBtn">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
-    Return to the sky
-  </button>
-
-  <div class="hub-header">
-    <div class="mono">Private index — you found this on purpose</div>
-    <h2 class="hub-title">The Archive</h2>
-  </div>
-
-  <div class="card-grid">
-
-    <a class="card" style="--accent:var(--amber)" href="https://wishes.dirosan.com" target="_self">
-      <svg class="card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 2v6M12 16v6M4.9 4.9l4.2 4.2M14.9 14.9l4.2 4.2M2 12h6M16 12h6M4.9 19.1l4.2-4.2M14.9 9.1l4.2-4.2"/></svg>
-      <h3>Birthday Wishes</h3>
-      <p>A running record of messages, dates, and the small details worth not forgetting — searchable by person and year.</p>
-      <div class="card-meta"><span>subdomain</span><span>·</span><span>wishes.dirosan.com</span></div>
-    </a>
-
-    <a class="card" style="--accent:var(--teal)" href="https://movies.dirosan.com" target="_self">
-      <svg class="card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M8 3v4M16 3v4M3 10h18"/></svg>
-      <h3>Tonight's Watch</h3>
-      <p>Local showtimes and what's newly streaming nearby, refreshed automatically so it's never stale by the time you look.</p>
-      <div class="card-meta"><span class="pulse-dot"></span><span id="liveClock">synced 0s ago</span></div>
-    </a>
-
-    <a class="card" style="--accent:var(--violet)" href="https://trips.dirosan.com" target="_self">
-      <svg class="card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 11l18-7-7 18-3-8-8-3z"/></svg>
-      <h3>Trip Planning</h3>
-      <p>Routes, bookings, and the loose itinerary for whatever's next — one board per trip, nothing scattered across apps.</p>
-      <div class="card-meta"><span>subdomain</span><span>·</span><span>trips.dirosan.com</span></div>
-    </a>
-
-    <div class="card placeholder">
-      <svg class="card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 5v14M5 12h14"/></svg>
-      <h3>Next room</h3>
-      <p>This index is built to grow. Each new card here is its own space, added when it's ready.</p>
-      <div class="card-meta"><span>reserved</span></div>
+<div class="desk">
+  <div class="crt">
+    <div class="titlebar">
+      <span>dirosan — tty1</span>
+      <span id="clock">00:00:00</span>
     </div>
 
-  </div>
-</section>
+    <div class="boot-view" id="bootView">
+      <div>
+        <div class="line boot-line"><span class="tag-ok">[  OK  ]</span> Starting kernel…</div>
+        <div class="line boot-line"><span class="tag-ok">[  OK  ]</span> Mounting /home/dirosan</div>
+        <div class="line boot-line"><span class="tag-ok">[  OK  ]</span> Loading personal archive index</div>
+        <div class="line boot-line"><span class="tag-warn">[ WARN ]</span> Unindexed entry detected in /var/log</div>
+        <div class="line boot-line"><span class="tag-ok">[  OK  ]</span> Network reachable — wishes.dirosan.com</div>
+        <div class="line boot-line"><span class="tag-ok">[  OK  ]</span> Network reachable — movies.dirosan.com</div>
+        <div class="line boot-line"><span class="tag-ok">[  OK  ]</span> Network reachable — trips.dirosan.com</div>
+        <div class="line boot-line"><span class="tag-ok">[  OK  ]</span> Idle. Awaiting input.</div>
 
-<script type="module" src="js/main.js?v=3"></script>
+        <div class="prompt-row">
+          <span class="white">guest@dirosan</span><span class="dim">:~$</span>
+          <span class="dim">ls -la /var/log</span>
+        </div>
+
+        <div class="line dim" style="margin-top:10px;">-rw-r--r--&nbsp;&nbsp;1 dirosan&nbsp;&nbsp;staff&nbsp;&nbsp;142B&nbsp;&nbsp;archive.log</div>
+        <div class="line dim">-rw-r--r--&nbsp;&nbsp;1 dirosan&nbsp;&nbsp;staff&nbsp;&nbsp;&nbsp;88B&nbsp;&nbsp;network.log</div>
+        <div class="line">-rw-------&nbsp;&nbsp;1 dirosan&nbsp;&nbsp;staff&nbsp;&nbsp;&nbsp;&nbsp;0B&nbsp;&nbsp;<span class="odd-file" id="oddFile">????????.tmp</span></div>
+      </div>
+
+      <div class="session-log" id="sessionLog"></div>
+
+      <div class="prompt-row">
+        <span class="white">guest@dirosan</span><span class="dim">:~$</span>
+        <input id="cmdInput" class="cmd-input" autocomplete="off" spellcheck="false" placeholder="try 'help'" autofocus />
+      </div>
+
+      <button class="granted" id="grantedBtn">[ ACCESS GRANTED ] run ./enter_archive</button>
+    </div>
+
+    <div class="archive-view" id="archiveView">
+      <div class="archive-header">guest@dirosan:~$ cd /archive &amp;&amp; ls -la</div>
+      <table>
+        <tr class="entry" data-href="https://wishes.dirosan.com">
+          <td class="perm">-rw-r--r--</td>
+          <td>wishes.dirosan.com</td>
+          <td class="dim">[birthday-wishes]</td>
+          <td class="status-online">online</td>
+        </tr>
+        <tr class="entry" data-href="https://movies.dirosan.com">
+          <td class="perm">-rw-r--r--</td>
+          <td>movies.dirosan.com</td>
+          <td class="dim">[tonights-watch]</td>
+          <td class="status-online">
+            <svg class="sync-ring" width="14" height="14" viewBox="0 0 16 16">
+              <circle class="sync-ring-track" cx="8" cy="8" r="6"></circle>
+              <circle class="sync-ring-fill" cx="8" cy="8" r="6"></circle>
+            </svg>syncing
+          </td>
+        </tr>
+        <tr class="entry" data-href="https://trips.dirosan.com">
+          <td class="perm">-rw-r--r--</td>
+          <td>trips.dirosan.com</td>
+          <td class="dim">[trip-planning]</td>
+          <td class="status-online">online</td>
+        </tr>
+        <tr class="entry reserved">
+          <td class="perm">d---------</td>
+          <td>????/</td>
+          <td class="dim">[reserved]</td>
+          <td class="status-dash">—</td>
+        </tr>
+      </table>
+      <span class="back-line" id="backLine">cd ~ &nbsp;<span class="dim">// return to boot</span></span>
+    </div>
+  </div>
+
+  <div class="side-monitor">
+    <div class="titlebar"><span>net-mon — tty2</span></div>
+    <div class="feed-title dim">live feed</div>
+    <div class="feed-list" id="feedList"></div>
+  </div>
+</div>
+
+<script type="module" src="js/main.js?v=4"></script>
 </body>
 </html>
