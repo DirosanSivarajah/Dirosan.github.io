@@ -56,37 +56,51 @@
   .avatar-phase.show{ opacity:1; }
   .ai-core-wrap{
     position:relative; width:340px; height:340px;
-    display:flex; align-items:center; justify-content:center; perspective:900px;
+    display:flex; align-items:center; justify-content:center;
   }
   .ai-core-glow{
-    position:absolute; inset:0; margin:auto; width:260px; height:260px; border-radius:50%;
-    background:radial-gradient(circle, rgba(138,157,250,0.18), transparent 70%);
-    filter:blur(4px);
+    position:absolute; inset:0; margin:auto; width:300px; height:300px; border-radius:50%;
+    background:radial-gradient(circle, rgba(138,157,250,0.16), transparent 70%);
+    filter:blur(8px);
   }
-  .ai-core{
-    position:relative; width:220px; height:220px; transform-style:preserve-3d;
-    animation:coreSpin 14s linear infinite;
+  .ai-orb{
+    position:relative; width:190px; height:190px;
+    animation:orbBreathe 3.6s ease-in-out infinite, orbMorph 7s ease-in-out infinite;
   }
-  .ai-core-ring{
-    position:absolute; inset:0; border-radius:50%; border:1.5px solid rgba(138,157,250,0.5);
-    box-shadow:0 0 16px rgba(138,157,250,0.2);
+  .ai-orb-layer{
+    position:absolute; inset:0; border-radius:50%;
   }
-  .ai-core-ring.ring-a{ transform:rotateX(72deg); }
-  .ai-core-ring.ring-b{ transform:rotateY(72deg) rotateZ(15deg); border-color:rgba(138,157,250,0.32); inset:6%; }
-  .ai-core-ring.ring-c{ transform:rotateX(30deg) rotateY(50deg); border-color:rgba(138,157,250,0.4); inset:16%; }
-  @keyframes coreSpin{ from{ transform:rotateY(0deg) rotateX(4deg); } to{ transform:rotateY(360deg) rotateX(4deg); } }
+  .ai-orb-layer.l1{
+    background:radial-gradient(circle at 38% 32%, rgba(210,217,255,0.95), rgba(138,157,250,0.55) 45%, rgba(138,157,250,0.08) 75%);
+    filter:blur(2px);
+  }
+  .ai-orb-layer.l2{
+    background:radial-gradient(circle at 62% 68%, rgba(138,157,250,0.5), transparent 60%);
+    filter:blur(16px);
+    animation:orbDrift 5.5s ease-in-out infinite alternate;
+  }
+  @keyframes orbBreathe{ 0%,100%{ transform:scale(1); } 50%{ transform:scale(1.06); } }
+  @keyframes orbMorph{
+    0%,100%{ border-radius:48% 52% 62% 38% / 45% 42% 58% 55%; }
+    50%{ border-radius:58% 42% 45% 55% / 55% 58% 42% 45%; }
+  }
+  @keyframes orbDrift{ from{ transform:translate(0,0); } to{ transform:translate(-6%,4%); } }
 
   .ai-core-face{
     position:absolute; inset:0; margin:auto; width:80px; height:56px;
-    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px;
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:14px;
   }
-  .ai-eyes-row{ display:flex; gap:28px; }
+  .ai-eyes-row{ display:flex; gap:30px; }
   .ai-eye{
-    width:9px; height:9px; border-radius:50%; background:var(--guide);
-    box-shadow:0 0 10px rgba(138,157,250,0.9); animation:facePulse 2.4s ease-in-out infinite;
+    width:10px; height:10px; border-radius:50%; background:var(--white);
+    box-shadow:0 0 12px rgba(255,255,255,0.9); animation:facePulse 2.4s ease-in-out infinite;
+    filter:blur(0.3px);
   }
-  .ai-mouth{ width:36px; height:2px; background:var(--guide); opacity:0.85; border-radius:1px; }
-  @keyframes facePulse{ 0%,100%{ opacity:0.85; } 50%{ opacity:1; box-shadow:0 0 18px rgba(138,157,250,1); } }
+  .ai-mouth{
+    width:30px; height:14px; border-radius:0 0 30px 30px; border:2px solid var(--white); border-top:none;
+    opacity:0.75;
+  }
+  @keyframes facePulse{ 0%,100%{ opacity:0.85; } 50%{ opacity:1; box-shadow:0 0 18px rgba(255,255,255,1); } }
 
   .ai-core-tag{
     position:absolute; top:50%; font-size:10px; letter-spacing:0.05em; text-transform:uppercase;
@@ -291,10 +305,9 @@
       <div class="ai-core-glow"></div>
       <div class="ai-core-tag tag-left"><span class="tag-label">core</span><span class="tag-value">online</span></div>
       <div class="ai-core-tag tag-right"><span class="tag-label">sync</span><span class="tag-value" id="coreSyncValue">0%</span></div>
-      <div class="ai-core">
-        <div class="ai-core-ring ring-a"></div>
-        <div class="ai-core-ring ring-b"></div>
-        <div class="ai-core-ring ring-c"></div>
+      <div class="ai-orb">
+        <div class="ai-orb-layer l1"></div>
+        <div class="ai-orb-layer l2"></div>
       </div>
       <div class="ai-core-face">
         <div class="ai-eyes-row">
