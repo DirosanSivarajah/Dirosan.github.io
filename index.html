@@ -54,74 +54,16 @@
     opacity:0; transition:opacity 0.6s ease;
   }
   .avatar-phase.show{ opacity:1; }
-  .ai-core-wrap{
-    position:relative; width:340px; height:340px;
-    display:flex; align-items:center; justify-content:center;
+  .boot-spinner{
+    font-size:32px; color:var(--amber); text-shadow:0 0 10px rgba(227,172,63,0.4);
   }
-  .ai-core-glow{
-    position:absolute; inset:0; margin:auto; width:300px; height:300px; border-radius:50%;
-    background:radial-gradient(circle, rgba(138,157,250,0.16), transparent 70%);
-    filter:blur(8px);
-  }
-  .ai-orb{
-    position:relative; width:190px; height:190px;
-    animation:orbBreathe 3.6s ease-in-out infinite, orbMorph 7s ease-in-out infinite;
-  }
-  .ai-orb-layer{
-    position:absolute; inset:0; border-radius:50%;
-  }
-  .ai-orb-layer.l1{
-    background:radial-gradient(circle at 38% 32%, rgba(210,217,255,0.95), rgba(138,157,250,0.55) 45%, rgba(138,157,250,0.08) 75%);
-    filter:blur(2px);
-  }
-  .ai-orb-layer.l2{
-    background:radial-gradient(circle at 62% 68%, rgba(138,157,250,0.5), transparent 60%);
-    filter:blur(16px);
-    animation:orbDrift 5.5s ease-in-out infinite alternate;
-  }
-  @keyframes orbBreathe{ 0%,100%{ transform:scale(1); } 50%{ transform:scale(1.06); } }
-  @keyframes orbMorph{
-    0%,100%{ border-radius:48% 52% 62% 38% / 45% 42% 58% 55%; }
-    50%{ border-radius:58% 42% 45% 55% / 55% 58% 42% 45%; }
-  }
-  @keyframes orbDrift{ from{ transform:translate(0,0); } to{ transform:translate(-6%,4%); } }
-
-  .ai-core-face{
-    position:absolute; inset:0; margin:auto; width:80px; height:56px;
-    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:14px;
-  }
-  .ai-eyes-row{ display:flex; gap:30px; }
-  .ai-eye{
-    width:10px; height:10px; border-radius:50%; background:var(--white);
-    box-shadow:0 0 12px rgba(255,255,255,0.9); animation:facePulse 2.4s ease-in-out infinite;
-    filter:blur(0.3px);
-  }
-  .ai-mouth{
-    width:30px; height:14px; border-radius:0 0 30px 30px; border:2px solid var(--white); border-top:none;
-    opacity:0.75;
-  }
-  @keyframes facePulse{ 0%,100%{ opacity:0.85; } 50%{ opacity:1; box-shadow:0 0 18px rgba(255,255,255,1); } }
-
-  .ai-core-tag{
-    position:absolute; top:50%; font-size:10px; letter-spacing:0.05em; text-transform:uppercase;
-    color:var(--dim); display:flex; align-items:center; gap:7px; white-space:nowrap;
-  }
-  .ai-core-tag .tag-value{
-    color:var(--guide); border:1px solid rgba(138,157,250,0.35); padding:2px 6px; border-radius:2px;
-  }
-  .ai-core-tag.tag-left{ left:0; transform:translateY(-50%); flex-direction:row-reverse; }
-  .ai-core-tag.tag-right{ right:0; transform:translateY(-50%); }
-  .ai-core-tag::after{
-    content:''; position:absolute; top:50%; width:28px; height:1px; background:rgba(138,157,250,0.3);
-  }
-  .ai-core-tag.tag-left::after{ right:100%; margin-right:8px; }
-  .ai-core-tag.tag-right::after{ left:100%; margin-left:8px; }
   .avatar-label{ font-size:12px; letter-spacing:0.2em; text-transform:uppercase; color:var(--dim); }
   .avatar-loadbar{ width:220px; height:4px; background:#17140f; border-radius:2px; overflow:hidden; }
   .avatar-loadbar-fill{
-    height:100%; width:0%; background:linear-gradient(90deg, var(--guide), var(--white));
+    height:100%; width:0%; background:linear-gradient(90deg, var(--amber-dim), var(--amber));
     transition:width 1.6s linear;
   }
+  .avatar-pct{ font-size:11px; color:var(--amber); }
 
   /* ---------- desk layout ---------- */
   .desk{
@@ -301,24 +243,10 @@
 <div class="intro-overlay" id="introOverlay">
   <div class="intro-text" id="introText"></div>
   <div class="avatar-phase" id="avatarPhase" style="display:none;">
-    <div class="ai-core-wrap">
-      <div class="ai-core-glow"></div>
-      <div class="ai-core-tag tag-left"><span class="tag-label">core</span><span class="tag-value">online</span></div>
-      <div class="ai-core-tag tag-right"><span class="tag-label">sync</span><span class="tag-value" id="coreSyncValue">0%</span></div>
-      <div class="ai-orb">
-        <div class="ai-orb-layer l1"></div>
-        <div class="ai-orb-layer l2"></div>
-      </div>
-      <div class="ai-core-face">
-        <div class="ai-eyes-row">
-          <div class="ai-eye"></div>
-          <div class="ai-eye"></div>
-        </div>
-        <div class="ai-mouth"></div>
-      </div>
-    </div>
+    <div class="boot-spinner" id="bootSpinner">|</div>
     <div class="avatar-label">Starting system</div>
     <div class="avatar-loadbar"><div class="avatar-loadbar-fill" id="avatarLoadFill"></div></div>
+    <div class="avatar-pct" id="avatarPct">0%</div>
   </div>
 </div>
 

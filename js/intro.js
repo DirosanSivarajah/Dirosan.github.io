@@ -27,20 +27,31 @@ export function runIntro(reduceMotion, onComplete) {
     const fill = document.getElementById('avatarLoadFill');
     setTimeout(() => { fill.style.width = '100%'; }, reduceMotion ? 0 : 150);
 
-    const syncValue = document.getElementById('coreSyncValue');
+    const pctEl = document.getElementById('avatarPct');
     if (reduceMotion) {
-      syncValue.textContent = '100%';
+      pctEl.textContent = '100%';
     } else {
-      const syncStart = Date.now();
-      const syncDuration = 1600;
-      const syncTimer = setInterval(() => {
-        const pct = Math.min(100, Math.round(((Date.now() - syncStart) / syncDuration) * 100));
-        syncValue.textContent = pct + '%';
-        if (pct >= 100) clearInterval(syncTimer);
+      const start = Date.now();
+      const duration = 1600;
+      const pctTimer = setInterval(() => {
+        const pct = Math.min(100, Math.round(((Date.now() - start) / duration) * 100));
+        pctEl.textContent = pct + '%';
+        if (pct >= 100) clearInterval(pctTimer);
       }, 60);
     }
 
+    const spinnerEl = document.getElementById('bootSpinner');
+    const spinnerFrames = ['|', '/', '-', '\\'];
+    let spinnerIndex = 0;
+    const spinnerTimer = reduceMotion
+      ? null
+      : setInterval(() => {
+          spinnerIndex = (spinnerIndex + 1) % spinnerFrames.length;
+          spinnerEl.textContent = spinnerFrames[spinnerIndex];
+        }, 120);
+
     setTimeout(() => {
+      if (spinnerTimer) clearInterval(spinnerTimer);
       overlay.classList.add('fade-out');
       setTimeout(() => { overlay.style.display = 'none'; }, 700);
       onComplete();
