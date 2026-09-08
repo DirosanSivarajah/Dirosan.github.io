@@ -1,13 +1,15 @@
-import { revealBootLines, startClock } from './boot.js?v=4';
-import { startFeed } from './feed.js?v=4';
-import { initPrompt } from './prompt.js?v=4';
-import { createHiddenFile, registerHiddenFileHit } from './hidden-file.js?v=4';
-import { enterArchive, exitArchive, wireArchiveLinks } from './archive.js?v=4';
+import { revealBootLines, startClock } from './boot.js?v=5';
+import { startFeed } from './feed.js?v=5';
+import { initPrompt } from './prompt.js?v=5';
+import { createHiddenFile, registerHiddenFileHit } from './hidden-file.js?v=5';
+import { enterArchive, exitArchive, wireArchiveLinks } from './archive.js?v=5';
+import { runIntro } from './intro.js?v=5';
+import { renderAsciiBg } from './ascii-bg.js?v=5';
+import { startGauges } from './gauges.js?v=5';
 
 const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-startClock(document.getElementById('clock'));
-revealBootLines(reduceMotion);
+renderAsciiBg(document.getElementById('asciiBg'));
 
 const oddFile = document.getElementById('oddFile');
 const grantedBtn = document.getElementById('grantedBtn');
@@ -32,4 +34,24 @@ backLine.addEventListener('click', () => exitArchive(bootView, archiveView));
 wireArchiveLinks(document.querySelectorAll('tr.entry:not(.reserved)'));
 
 initPrompt(document.getElementById('cmdInput'), document.getElementById('sessionLog'));
-startFeed(document.getElementById('feedList'), reduceMotion);
+
+function startSystem() {
+  revealBootLines(reduceMotion);
+  startClock(document.getElementById('clock'));
+  startFeed(document.getElementById('feedList'), reduceMotion);
+  startGauges(reduceMotion);
+
+  const desk = document.getElementById('desk');
+  desk.classList.add('show');
+  const panels = [
+    document.getElementById('netMonPanel'),
+    document.getElementById('crtPanel'),
+    document.getElementById('sysStatsPanel')
+  ];
+  panels.forEach((panel, i) => {
+    if (reduceMotion) panel.classList.add('show');
+    else setTimeout(() => panel.classList.add('show'), 300 * i);
+  });
+}
+
+runIntro(reduceMotion, startSystem);

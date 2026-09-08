@@ -7,7 +7,7 @@
 <link rel="icon" href="/favicon.ico">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=VT323&display=swap" rel="stylesheet">
 <style>
   :root{
     --bg:#050506;
@@ -17,22 +17,71 @@
     --ok:#6fcf97;
     --dim:#5a5248;
     --white:#f4ead2;
+    --guide:#8a9dfa;
   }
   *{ box-sizing:border-box; }
   html,body{ margin:0; min-height:100vh; }
   body{
     background:#000; color:var(--amber);
     font-family:'IBM Plex Mono',monospace; display:flex; align-items:center; justify-content:center;
-    padding:32px; min-height:100vh;
+    padding:32px; min-height:100vh; position:relative; overflow-x:hidden;
   }
+
+  /* ---------- background texture ---------- */
+  .ascii-bg{
+    position:fixed; inset:0; z-index:0; color:var(--amber-dim); opacity:0.06;
+    font-family:'IBM Plex Mono',monospace; font-size:11px; line-height:13px; white-space:pre;
+    user-select:none; pointer-events:none; overflow:hidden;
+  }
+
+  /* ---------- intro sequence ---------- */
+  .intro-overlay{
+    position:fixed; inset:0; z-index:20; background:#000;
+    display:flex; align-items:center; justify-content:center; padding:32px;
+    transition:opacity 0.7s ease;
+  }
+  .intro-overlay.fade-out{ opacity:0; pointer-events:none; }
+  .intro-text{ font-size:15px; line-height:2.1; max-width:600px; width:100%; }
+  .intro-line{ min-height:1.5em; }
+  .guide-prefix{ color:var(--guide); }
+  .intro-cursor{
+    display:inline-block; width:8px; height:15px; background:var(--guide);
+    animation:blink 1s step-end infinite; vertical-align:middle; margin-left:2px;
+  }
+
+  .avatar-phase{
+    display:flex; flex-direction:column; align-items:center; gap:18px;
+    opacity:0; transition:opacity 0.6s ease;
+  }
+  .avatar-phase.show{ opacity:1; }
+  .ascii-face{
+    margin:0; color:var(--guide); font-size:13px; line-height:1.3;
+    text-shadow:0 0 12px rgba(138,157,250,0.5);
+    animation:facePulse 2.4s ease-in-out infinite;
+  }
+  @keyframes facePulse{ 0%,100%{ opacity:0.85; } 50%{ opacity:1; text-shadow:0 0 20px rgba(138,157,250,0.8); } }
+  .avatar-label{ font-size:12px; letter-spacing:0.2em; text-transform:uppercase; color:var(--dim); }
+  .avatar-loadbar{ width:220px; height:4px; background:#17140f; border-radius:2px; overflow:hidden; }
+  .avatar-loadbar-fill{
+    height:100%; width:0%; background:linear-gradient(90deg, var(--guide), var(--white));
+    transition:width 1.6s linear;
+  }
+
+  /* ---------- desk layout ---------- */
   .desk{
-    display:grid; grid-template-columns:minmax(0,700px) 230px; gap:22px;
-    width:100%; max-width:952px; align-items:start;
+    position:relative; z-index:1;
+    display:grid; grid-template-columns:280px minmax(0,1fr); gap:26px;
+    width:92vw; max-width:1500px; height:calc(100vh - 64px); align-items:stretch;
+    opacity:0; transition:opacity 0.6s ease;
   }
-  .sidebar{ display:flex; flex-direction:column; gap:22px; }
+  .desk.show{ opacity:1; }
+  .sidebar{ display:flex; flex-direction:column; gap:22px; height:100%; }
+  .main-column{ display:flex; flex-direction:column; gap:22px; height:100%; }
 
   @media (max-width:1000px){
-    .desk{ grid-template-columns:1fr; max-width:700px; }
+    .desk{ grid-template-columns:1fr; width:100%; max-width:700px; height:auto; }
+    .sidebar{ height:auto; }
+    .main-column{ height:auto; }
   }
 
   .crt, .side-monitor{
@@ -40,8 +89,20 @@
     box-shadow:0 30px 80px -20px rgba(0,0,0,0.8), inset 0 0 60px rgba(227,172,63,0.04);
     overflow:hidden;
   }
-  .crt{ width:100%; height:600px; padding:28px 34px; display:flex; flex-direction:column; }
-  .side-monitor{ width:100%; height:600px; padding:26px 20px; display:flex; flex-direction:column; }
+  .crt{ width:100%; flex:1; min-height:0; padding:28px 34px; display:flex; flex-direction:column; }
+  .side-monitor{ width:100%; padding:22px 20px; display:flex; flex-direction:column; }
+  .sidebar > .side-monitor{ flex:1; }
+  .main-column > .side-monitor{ flex-shrink:0; }
+
+  @media (max-width:1000px){
+    .crt{ height:520px; flex:none; }
+  }
+
+  .crt.power-on, .side-monitor.power-on{ opacity:0; transform:translateY(10px); }
+  .crt.power-on.show, .side-monitor.power-on.show{
+    opacity:1; transform:translateY(0);
+    transition:opacity 0.5s ease, transform 0.5s ease;
+  }
 
   .crt::before, .side-monitor::before{
     content:''; position:absolute; inset:0; pointer-events:none; z-index:5;
@@ -86,8 +147,8 @@
 
   .granted{
     margin-top:14px; padding:10px 16px; border:1px solid var(--amber-dim);
-    color:var(--amber); font-size:12px; letter-spacing:0.06em; display:inline-flex; align-items:center; gap:10px;
-    cursor:pointer; background:transparent; font-family:inherit; flex-shrink:0; width:fit-content;
+    color:var(--amber); font-size:15px; letter-spacing:0.06em; display:inline-flex; align-items:center; gap:10px;
+    cursor:pointer; background:transparent; font-family:'VT323', monospace; flex-shrink:0; width:fit-content;
     opacity:0; transform:translateY(6px); transition:opacity 0.5s ease, transform 0.5s ease, border-color 0.3s ease, box-shadow 0.3s ease;
     pointer-events:none;
   }
@@ -129,95 +190,187 @@
   .feed-line.dim{ color:var(--amber-dim); }
   @keyframes feedIn{ from{ opacity:0; transform:translateY(4px); } to{ opacity:1; transform:translateY(0); } }
 
+  /* ---------- ambient resource gauges ---------- */
+  .gauge-block{ margin-top:18px; display:flex; flex-direction:column; gap:8px; }
+  .gauge-row{ display:flex; align-items:center; gap:8px; font-size:11px; }
+  .gauge-row .gauge-name{ width:32px; color:var(--dim); flex-shrink:0; }
+  .gauge-row .gauge-bar{ letter-spacing:-1px; flex:1; overflow:hidden; white-space:nowrap; }
+  .gauge-row .gauge-pct{ width:34px; text-align:right; color:var(--amber); flex-shrink:0; }
+
+  /* ---------- radar scanner ---------- */
+  .radar-wrap{ margin-top:32px; text-align:center; flex-shrink:0; }
+  .radar-title{ font-size:10px; letter-spacing:0.08em; text-transform:uppercase; margin-bottom:14px; }
+  .radar{
+    position:relative; width:160px; height:160px; margin:0 auto; border-radius:50%;
+    border:1px solid rgba(227,172,63,0.25); overflow:hidden;
+    background:radial-gradient(circle, rgba(227,172,63,0.03), transparent 70%);
+  }
+  .radar-ring{ position:absolute; border:1px solid rgba(227,172,63,0.15); border-radius:50%; }
+  .radar-ring.r1{ inset:20%; }
+  .radar-ring.r2{ inset:40%; }
+  .radar-ring.r3{ inset:60%; }
+  .radar-cross{ position:absolute; background:rgba(227,172,63,0.12); }
+  .radar-cross.h{ left:0; right:0; top:50%; height:1px; }
+  .radar-cross.v{ top:0; bottom:0; left:50%; width:1px; }
+  .radar-sweep{
+    position:absolute; inset:0;
+    background:conic-gradient(from 0deg, rgba(227,172,63,0.4), transparent 35deg, transparent 360deg);
+    animation:radarSpin 3s linear infinite;
+  }
+  @keyframes radarSpin{ from{ transform:rotate(0deg); } to{ transform:rotate(360deg); } }
+  .radar-blip{
+    position:absolute; width:5px; height:5px; border-radius:50%;
+    background:var(--ok); box-shadow:0 0 6px var(--ok); animation:blipPulse 2.6s ease-in-out infinite;
+  }
+  .radar-blip.b1{ top:30%; left:62%; animation-delay:0.3s; }
+  .radar-blip.b2{ top:68%; left:36%; animation-delay:1.5s; }
+  @keyframes blipPulse{ 0%,100%{ opacity:0; } 50%{ opacity:1; } }
+
+  /* ---------- honest placeholder for real status, once sites deploy ---------- */
+  .pending-block{
+    flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center;
+    text-align:center; gap:10px; padding:20px 10px;
+  }
+  .pending-dots{ font-size:20px; color:var(--dim); letter-spacing:6px; animation:pendingPulse 1.6s ease-in-out infinite; }
+  @keyframes pendingPulse{ 0%,100%{ opacity:0.3; } 50%{ opacity:0.9; } }
+  .pending-text{ font-size:11.5px; line-height:1.6; max-width:190px; color:var(--dim); }
+
   @media (prefers-reduced-motion: reduce){ *{ animation:none !important; } .boot-line{ opacity:1 !important; } .feed-line{ opacity:1 !important; } }
 </style>
 </head>
 <body>
 
-<div class="desk">
-  <div class="crt">
-    <div class="titlebar">
-      <span>dirosan — tty1</span>
-      <span id="clock">00:00:00</span>
-    </div>
+<div class="ascii-bg" id="asciiBg"></div>
 
-    <div class="boot-view" id="bootView">
-      <div>
-        <div class="line boot-line"><span class="tag-ok">[  OK  ]</span> Starting kernel…</div>
-        <div class="line boot-line"><span class="tag-ok">[  OK  ]</span> Mounting /home/dirosan</div>
-        <div class="line boot-line"><span class="tag-ok">[  OK  ]</span> Loading personal archive index</div>
-        <div class="line boot-line"><span class="tag-warn">[ WARN ]</span> Unindexed entry detected in /var/log</div>
-        <div class="line boot-line"><span class="tag-ok">[  OK  ]</span> Network reachable — ******.dirosan.com</div>
-        <div class="line boot-line"><span class="tag-ok">[  OK  ]</span> Network reachable — ******.dirosan.com</div>
-        <div class="line boot-line"><span class="tag-ok">[  OK  ]</span> Network reachable — *****.dirosan.com</div>
-        <div class="line boot-line"><span class="tag-ok">[  OK  ]</span> Idle. Awaiting input.</div>
-
-        <div class="prompt-row">
-          <span class="white">guest@dirosan</span><span class="dim">:~$</span>
-          <span class="dim">ls -la /var/log</span>
-        </div>
-
-        <div class="line dim" style="margin-top:10px;">-rw-r--r--&nbsp;&nbsp;1 dirosan&nbsp;&nbsp;staff&nbsp;&nbsp;142B&nbsp;&nbsp;archive.log</div>
-        <div class="line dim">-rw-r--r--&nbsp;&nbsp;1 dirosan&nbsp;&nbsp;staff&nbsp;&nbsp;&nbsp;88B&nbsp;&nbsp;network.log</div>
-        <div class="line">-rw-------&nbsp;&nbsp;1 dirosan&nbsp;&nbsp;staff&nbsp;&nbsp;&nbsp;&nbsp;0B&nbsp;&nbsp;<span class="odd-file" id="oddFile">????????.tmp</span></div>
-      </div>
-
-      <div class="session-log" id="sessionLog"></div>
-
-      <div class="prompt-row">
-        <span class="white">guest@dirosan</span><span class="dim">:~$</span>
-        <input id="cmdInput" class="cmd-input" autocomplete="off" spellcheck="false" placeholder="try 'help'" autofocus />
-      </div>
-
-      <button class="granted" id="grantedBtn">[ ACCESS GRANTED ] run ./enter_archive</button>
-    </div>
-
-    <div class="archive-view" id="archiveView">
-      <div class="archive-header">guest@dirosan:~$ cd /archive &amp;&amp; ls -la</div>
-      <table>
-        <tr class="entry" data-href="https://wishes.dirosan.com">
-          <td class="perm">-rw-------</td>
-          <td>******.dirosan.com</td>
-          <td class="dim">[private]</td>
-          <td class="status-online">online</td>
-        </tr>
-        <tr class="entry" data-href="https://movies.dirosan.com">
-          <td class="perm">-rw-------</td>
-          <td>******.dirosan.com</td>
-          <td class="dim">[private]</td>
-          <td class="status-online">
-            <svg class="sync-ring" width="14" height="14" viewBox="0 0 16 16">
-              <circle class="sync-ring-track" cx="8" cy="8" r="6"></circle>
-              <circle class="sync-ring-fill" cx="8" cy="8" r="6"></circle>
-            </svg>syncing
-          </td>
-        </tr>
-        <tr class="entry" data-href="https://trips.dirosan.com">
-          <td class="perm">-rw-------</td>
-          <td>*****.dirosan.com</td>
-          <td class="dim">[private]</td>
-          <td class="status-online">online</td>
-        </tr>
-        <tr class="entry reserved">
-          <td class="perm">d---------</td>
-          <td>????/</td>
-          <td class="dim">[reserved]</td>
-          <td class="status-dash">—</td>
-        </tr>
-      </table>
-      <span class="back-line" id="backLine">cd ~ &nbsp;<span class="dim">// return to boot</span></span>
-    </div>
+<div class="intro-overlay" id="introOverlay">
+  <div class="intro-text" id="introText"></div>
+  <div class="avatar-phase" id="avatarPhase" style="display:none;">
+    <pre class="ascii-face">┌──────────────┐
+│   ◈      ◈   │
+│              │
+│   └──────┘   │
+└──────────────┘</pre>
+    <div class="avatar-label">Starting system</div>
+    <div class="avatar-loadbar"><div class="avatar-loadbar-fill" id="avatarLoadFill"></div></div>
   </div>
+</div>
 
+<div class="desk" id="desk">
   <div class="sidebar">
-    <div class="side-monitor">
+    <div class="side-monitor power-on" id="netMonPanel">
       <div class="titlebar"><span>net-mon — tty2</span></div>
       <div class="feed-title dim">live feed</div>
       <div class="feed-list" id="feedList"></div>
+
+      <div class="feed-title dim">resources</div>
+      <div class="gauge-block" id="gaugeBlock">
+        <div class="gauge-row"><span class="gauge-name">cpu</span><span class="gauge-bar" id="gaugeCpuBar"></span><span class="gauge-pct" id="gaugeCpuPct"></span></div>
+        <div class="gauge-row"><span class="gauge-name">mem</span><span class="gauge-bar" id="gaugeMemBar"></span><span class="gauge-pct" id="gaugeMemPct"></span></div>
+        <div class="gauge-row"><span class="gauge-name">disk</span><span class="gauge-bar" id="gaugeDiskBar"></span><span class="gauge-pct" id="gaugeDiskPct"></span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="main-column">
+    <div class="crt power-on" id="crtPanel">
+      <div class="titlebar">
+        <span>dirosan — tty1</span>
+        <span id="clock">00:00:00</span>
+      </div>
+
+      <div class="boot-view" id="bootView">
+        <div>
+          <div class="line boot-line"><span class="tag-ok">[  OK  ]</span> Starting kernel…</div>
+          <div class="line boot-line"><span class="tag-ok">[  OK  ]</span> Mounting /home/dirosan</div>
+          <div class="line boot-line"><span class="tag-ok">[  OK  ]</span> Loading personal archive index</div>
+          <div class="line boot-line"><span class="tag-warn">[ WARN ]</span> Unindexed entry detected in /var/log</div>
+          <div class="line boot-line"><span class="tag-ok">[  OK  ]</span> Network reachable — ******.dirosan.com</div>
+          <div class="line boot-line"><span class="tag-ok">[  OK  ]</span> Network reachable — ******.dirosan.com</div>
+          <div class="line boot-line"><span class="tag-ok">[  OK  ]</span> Network reachable — *****.dirosan.com</div>
+          <div class="line boot-line"><span class="tag-ok">[  OK  ]</span> Idle. Awaiting input.</div>
+
+          <div class="prompt-row">
+            <span class="white">guest@dirosan</span><span class="dim">:~$</span>
+            <span class="dim">ls -la /var/log</span>
+          </div>
+
+          <div class="line dim" style="margin-top:10px;">-rw-r--r--&nbsp;&nbsp;1 dirosan&nbsp;&nbsp;staff&nbsp;&nbsp;142B&nbsp;&nbsp;archive.log</div>
+          <div class="line dim">-rw-r--r--&nbsp;&nbsp;1 dirosan&nbsp;&nbsp;staff&nbsp;&nbsp;&nbsp;88B&nbsp;&nbsp;network.log</div>
+          <div class="line">-rw-------&nbsp;&nbsp;1 dirosan&nbsp;&nbsp;staff&nbsp;&nbsp;&nbsp;&nbsp;0B&nbsp;&nbsp;<span class="odd-file" id="oddFile">????????.tmp</span></div>
+
+          <div class="radar-wrap">
+            <div class="radar-title dim">scanning /var/log</div>
+            <div class="radar">
+              <div class="radar-cross h"></div>
+              <div class="radar-cross v"></div>
+              <div class="radar-ring r1"></div>
+              <div class="radar-ring r2"></div>
+              <div class="radar-ring r3"></div>
+              <div class="radar-sweep"></div>
+              <div class="radar-blip b1"></div>
+              <div class="radar-blip b2"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="session-log" id="sessionLog"></div>
+
+        <div class="prompt-row">
+          <span class="white">guest@dirosan</span><span class="dim">:~$</span>
+          <input id="cmdInput" class="cmd-input" autocomplete="off" spellcheck="false" placeholder="try 'help'" autofocus />
+        </div>
+
+        <button class="granted" id="grantedBtn">[ ACCESS GRANTED ] run ./enter_archive</button>
+      </div>
+
+      <div class="archive-view" id="archiveView">
+        <div class="archive-header">guest@dirosan:~$ cd /archive &amp;&amp; ls -la</div>
+        <table>
+          <tr class="entry" data-href="https://wishes.dirosan.com">
+            <td class="perm">-rw-------</td>
+            <td>******.dirosan.com</td>
+            <td class="dim">[private]</td>
+            <td class="status-online">online</td>
+          </tr>
+          <tr class="entry" data-href="https://movies.dirosan.com">
+            <td class="perm">-rw-------</td>
+            <td>******.dirosan.com</td>
+            <td class="dim">[private]</td>
+            <td class="status-online">
+              <svg class="sync-ring" width="14" height="14" viewBox="0 0 16 16">
+                <circle class="sync-ring-track" cx="8" cy="8" r="6"></circle>
+                <circle class="sync-ring-fill" cx="8" cy="8" r="6"></circle>
+              </svg>syncing
+            </td>
+          </tr>
+          <tr class="entry" data-href="https://trips.dirosan.com">
+            <td class="perm">-rw-------</td>
+            <td>*****.dirosan.com</td>
+            <td class="dim">[private]</td>
+            <td class="status-online">online</td>
+          </tr>
+          <tr class="entry reserved">
+            <td class="perm">d---------</td>
+            <td>????/</td>
+            <td class="dim">[reserved]</td>
+            <td class="status-dash">—</td>
+          </tr>
+        </table>
+        <span class="back-line" id="backLine">cd ~ &nbsp;<span class="dim">// return to boot</span></span>
+      </div>
+    </div>
+
+    <div class="side-monitor power-on" id="sysStatsPanel">
+      <div class="titlebar"><span>sys-stats — tty3</span></div>
+      <div class="feed-title dim">network status</div>
+      <div class="pending-block">
+        <div class="pending-dots">···</div>
+        <p class="pending-text">Real status for each site comes online as they're deployed. Nothing invented shown here in the meantime.</p>
+      </div>
     </div>
   </div>
 </div>
 
-<script type="module" src="js/main.js?v=4"></script>
+<script type="module" src="js/main.js?v=5"></script>
 </body>
 </html>
