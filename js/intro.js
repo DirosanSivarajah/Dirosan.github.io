@@ -14,6 +14,49 @@ const INTRO_LINES = [
   'initiating ./boot.sh --full'
 ];
 
+const WORDMARK = 'DIROSAN';
+const SCRAMBLE_CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ#@$%&*01';
+
+function fillMixGrid(el) {
+  const cols = 22;
+  const rows = 13;
+  for (let r = 0; r < rows; r++) {
+    for (let c = 0; c < cols; c++) {
+      const cell = document.createElement('div');
+      const isAccent = Math.random() < 0.1;
+      cell.className = 'mix-cell' + (isAccent ? ' accent' : '');
+      const base = (c * 0.06 + r * 0.03) % 2.8;
+      const jitter = (Math.random() - 0.5) * 0.3;
+      cell.style.animationDelay = (base + jitter).toFixed(2) + 's';
+      cell.style.animationDuration = (2.6 + Math.random() * 0.4).toFixed(2) + 's';
+      el.appendChild(cell);
+    }
+  }
+}
+
+function runDecrypt(el, reduceMotion) {
+  if (reduceMotion) {
+    el.textContent = WORDMARK;
+    return;
+  }
+  let revealed = 0;
+  const scrambleTimer = setInterval(() => {
+    let out = '';
+    for (let i = 0; i < WORDMARK.length; i++) {
+      out += i < revealed ? WORDMARK[i] : SCRAMBLE_CHARS[Math.floor(Math.random() * SCRAMBLE_CHARS.length)];
+    }
+    el.textContent = out;
+  }, 40);
+  const lockTimer = setInterval(() => {
+    revealed++;
+    if (revealed > WORDMARK.length) {
+      clearInterval(lockTimer);
+      clearInterval(scrambleTimer);
+      el.textContent = WORDMARK;
+    }
+  }, 130);
+}
+
 export function runIntro(reduceMotion, onComplete) {
   const overlay = document.getElementById('introOverlay');
   const introText = document.getElementById('introText');
@@ -40,18 +83,10 @@ export function runIntro(reduceMotion, onComplete) {
       }, 60);
     }
 
-    const spinnerEl = document.getElementById('bootSpinner');
-    const spinnerFrames = ['|', '/', '-', '\\'];
-    let spinnerIndex = 0;
-    const spinnerTimer = reduceMotion
-      ? null
-      : setInterval(() => {
-          spinnerIndex = (spinnerIndex + 1) % spinnerFrames.length;
-          spinnerEl.textContent = spinnerFrames[spinnerIndex];
-        }, 120);
+    fillMixGrid(document.getElementById('mixGrid'));
+    runDecrypt(document.getElementById('mixText'), reduceMotion);
 
     setTimeout(() => {
-      if (spinnerTimer) clearInterval(spinnerTimer);
       overlay.classList.add('fade-out');
       setTimeout(() => { overlay.style.display = 'none'; }, 700);
       onComplete();

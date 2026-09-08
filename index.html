@@ -54,8 +54,41 @@
     opacity:0; transition:opacity 0.6s ease;
   }
   .avatar-phase.show{ opacity:1; }
-  .boot-spinner{
-    font-size:32px; color:var(--amber); text-shadow:0 0 10px rgba(227,172,63,0.4);
+  .mix-stage{ position:relative; width:300px; height:170px; border-radius:6px; overflow:hidden; }
+  .mix-grid{
+    position:absolute; inset:0; display:grid;
+    grid-template-columns:repeat(22, 1fr); grid-template-rows:repeat(13, 1fr); gap:3px; padding:6px;
+  }
+  .mix-cell{
+    background:rgba(227,172,63,0.025); border-radius:1px;
+    animation:cellFlicker 2.8s ease-in-out infinite;
+  }
+  .mix-cell.accent{ animation-name:cellFlickerAccent; }
+  @keyframes cellFlicker{
+    0%,78%,100%{ background:rgba(227,172,63,0.025); box-shadow:none; }
+    38%{ background:rgba(227,172,63,0.95); box-shadow:0 0 8px rgba(227,172,63,0.75); }
+    58%{ background:rgba(227,172,63,0.35); box-shadow:none; }
+  }
+  @keyframes cellFlickerAccent{
+    0%,78%,100%{ background:rgba(111,207,151,0.03); box-shadow:none; }
+    38%{ background:rgba(111,207,151,0.9); box-shadow:0 0 8px rgba(111,207,151,0.7); }
+    58%{ background:rgba(111,207,151,0.3); box-shadow:none; }
+  }
+  .scan-sweep{
+    position:absolute; top:0; bottom:0; width:16%; z-index:1;
+    background:linear-gradient(90deg, transparent, rgba(244,234,210,0.5), transparent);
+    mix-blend-mode:screen; pointer-events:none;
+    animation:scanSweep 2s cubic-bezier(0.4,0,0.2,1) infinite;
+  }
+  @keyframes scanSweep{ 0%{ left:-16%; } 55%{ left:100%; } 100%{ left:100%; } }
+  .mix-fade{
+    position:absolute; inset:0; z-index:2;
+    background:radial-gradient(ellipse at center, rgba(5,5,6,0.8) 30%, rgba(5,5,6,0.2) 70%);
+  }
+  .mix-text{
+    position:absolute; inset:0; z-index:3; display:flex; align-items:center; justify-content:center;
+    font-size:24px; font-weight:600; letter-spacing:0.08em; color:var(--amber);
+    text-shadow:0 0 16px rgba(227,172,63,0.5);
   }
   .avatar-label{ font-size:12px; letter-spacing:0.2em; text-transform:uppercase; color:var(--dim); }
   .avatar-loadbar{ width:220px; height:4px; background:#17140f; border-radius:2px; overflow:hidden; }
@@ -243,7 +276,12 @@
 <div class="intro-overlay" id="introOverlay">
   <div class="intro-text" id="introText"></div>
   <div class="avatar-phase" id="avatarPhase" style="display:none;">
-    <div class="boot-spinner" id="bootSpinner">|</div>
+    <div class="mix-stage">
+      <div class="mix-grid" id="mixGrid"></div>
+      <div class="scan-sweep"></div>
+      <div class="mix-fade"></div>
+      <div class="mix-text" id="mixText"></div>
+    </div>
     <div class="avatar-label">Starting system</div>
     <div class="avatar-loadbar"><div class="avatar-loadbar-fill" id="avatarLoadFill"></div></div>
     <div class="avatar-pct" id="avatarPct">0%</div>
