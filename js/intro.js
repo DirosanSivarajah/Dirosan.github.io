@@ -27,6 +27,19 @@ export function runIntro(reduceMotion, onComplete) {
     const fill = document.getElementById('avatarLoadFill');
     setTimeout(() => { fill.style.width = '100%'; }, reduceMotion ? 0 : 150);
 
+    const syncValue = document.getElementById('coreSyncValue');
+    if (reduceMotion) {
+      syncValue.textContent = '100%';
+    } else {
+      const syncStart = Date.now();
+      const syncDuration = 1600;
+      const syncTimer = setInterval(() => {
+        const pct = Math.min(100, Math.round(((Date.now() - syncStart) / syncDuration) * 100));
+        syncValue.textContent = pct + '%';
+        if (pct >= 100) clearInterval(syncTimer);
+      }, 60);
+    }
+
     setTimeout(() => {
       overlay.classList.add('fade-out');
       setTimeout(() => { overlay.style.display = 'none'; }, 700);
