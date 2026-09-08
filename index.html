@@ -23,17 +23,25 @@
   body{
     background:#000; color:var(--amber);
     font-family:'IBM Plex Mono',monospace; display:flex; align-items:center; justify-content:center;
-    padding:32px; flex-direction:column; gap:22px;
+    padding:32px; min-height:100vh;
   }
-  .desk{ display:flex; gap:22px; align-items:center; flex-wrap:wrap; justify-content:center; }
+  .desk{
+    display:grid; grid-template-columns:minmax(0,700px) 230px; gap:22px;
+    width:100%; max-width:952px; align-items:start;
+  }
+  .sidebar{ display:flex; flex-direction:column; gap:22px; }
+
+  @media (max-width:1000px){
+    .desk{ grid-template-columns:1fr; max-width:700px; }
+  }
 
   .crt, .side-monitor{
     position:relative; background:var(--bg); border:10px solid var(--frame); border-radius:14px;
     box-shadow:0 30px 80px -20px rgba(0,0,0,0.8), inset 0 0 60px rgba(227,172,63,0.04);
     overflow:hidden;
   }
-  .crt{ width:100%; max-width:700px; height:600px; padding:28px 34px; display:flex; flex-direction:column; }
-  .side-monitor{ width:230px; height:600px; padding:26px 20px; display:flex; flex-direction:column; }
+  .crt{ width:100%; height:600px; padding:28px 34px; display:flex; flex-direction:column; }
+  .side-monitor{ width:100%; height:600px; padding:26px 20px; display:flex; flex-direction:column; }
 
   .crt::before, .side-monitor::before{
     content:''; position:absolute; inset:0; pointer-events:none; z-index:5;
@@ -201,10 +209,12 @@
     </div>
   </div>
 
-  <div class="side-monitor">
-    <div class="titlebar"><span>net-mon — tty2</span></div>
-    <div class="feed-title dim">live feed</div>
-    <div class="feed-list" id="feedList"></div>
+  <div class="sidebar">
+    <div class="side-monitor">
+      <div class="titlebar"><span>net-mon — tty2</span></div>
+      <div class="feed-title dim">live feed</div>
+      <div class="feed-list" id="feedList"></div>
+    </div>
   </div>
 </div>
 
