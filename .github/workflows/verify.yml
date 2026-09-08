@@ -1,0 +1,38 @@
+name: Verify site
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check required static files
+        run: |
+          test -f CNAME
+          grep -q "dirosan.com" CNAME
+          test -f .nojekyll
+          test -f favicon.ico
+          test -f index.html
+
+      - name: Check JS syntax
+        run: |
+          for f in js/*.js; do
+            cp "$f" "/tmp/$(basename "$f" .js).mjs"
+            node --check "/tmp/$(basename "$f" .js).mjs"
+          done
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install CI tooling
+        run: npm ci
+
+      - name: Smoke test in a real browser
+        run: npm run verify

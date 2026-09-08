@@ -1,0 +1,11 @@
+{
+  "name": "dirosan-site-ci",
+  "private": true,
+  "description": "CI tooling only — the site itself is plain static HTML/CSS/JS with no build step, no dependencies, and no server.",
+  "scripts": {
+    "verify": "node .github/scripts/smoke-test.mjs"
+  },
+  "devDependencies": {
+    "puppeteer": "^25.10.0"
+  }
+}

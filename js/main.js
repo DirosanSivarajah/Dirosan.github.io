@@ -2,7 +2,7 @@ import { revealBootLines, startClock } from './boot.js?v=4';
 import { startFeed } from './feed.js?v=4';
 import { initPrompt } from './prompt.js?v=4';
 import { createHiddenFile, registerHiddenFileHit } from './hidden-file.js?v=4';
-import { enterArchive, exitArchive, wireArchiveLinks } from './hub.js?v=4';
+import { enterArchive, exitArchive, wireArchiveLinks } from './archive.js?v=4';
 
 const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
