@@ -112,12 +112,6 @@
   .sidebar{ display:flex; flex-direction:column; gap:22px; height:100%; }
   .main-column{ display:flex; flex-direction:column; gap:22px; height:100%; }
 
-  @media (max-width:1000px){
-    .desk{ grid-template-columns:1fr; width:100%; max-width:700px; height:auto; }
-    .sidebar{ height:auto; }
-    .main-column{ height:auto; }
-  }
-
   .crt, .side-monitor{
     position:relative; background:var(--bg); border:10px solid var(--frame); border-radius:14px;
     box-shadow:0 30px 80px -20px rgba(0,0,0,0.8), inset 0 0 60px rgba(227,172,63,0.04);
@@ -129,6 +123,9 @@
   .main-column > .side-monitor{ flex-shrink:0; }
 
   @media (max-width:1000px){
+    .desk{ grid-template-columns:1fr; width:100%; max-width:700px; height:auto; }
+    .sidebar{ height:auto; }
+    .main-column{ height:auto; }
     .crt{ height:520px; flex:none; }
   }
 
@@ -161,7 +158,6 @@
   @keyframes lineIn{ from{ opacity:0; transform:translateY(3px); } to{ opacity:1; transform:translateY(0); } }
 
   .prompt-row{ display:flex; gap:8px; font-size:13px; margin-top:14px; flex-shrink:0; }
-  .cursor{ display:inline-block; width:8px; height:15px; background:var(--amber); animation:blink 1s step-end infinite; vertical-align:middle; }
   @keyframes blink{ 50%{ opacity:0; } }
 
   .cmd-input{
@@ -299,7 +295,7 @@
       <div class="feed-list" id="feedList"></div>
 
       <div class="feed-title dim">resources</div>
-      <div class="gauge-block" id="gaugeBlock">
+      <div class="gauge-block">
         <div class="gauge-row"><span class="gauge-name">cpu</span><span class="gauge-bar" id="gaugeCpuBar"></span><span class="gauge-pct" id="gaugeCpuPct"></span></div>
         <div class="gauge-row"><span class="gauge-name">mem</span><span class="gauge-bar" id="gaugeMemBar"></span><span class="gauge-pct" id="gaugeMemPct"></span></div>
         <div class="gauge-row"><span class="gauge-name">disk</span><span class="gauge-bar" id="gaugeDiskBar"></span><span class="gauge-pct" id="gaugeDiskPct"></span></div>
