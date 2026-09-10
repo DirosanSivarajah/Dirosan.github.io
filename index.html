@@ -227,43 +227,29 @@
   .gauge-row .gauge-bar{ letter-spacing:-1px; flex:1; overflow:hidden; white-space:nowrap; }
   .gauge-row .gauge-pct{ width:34px; text-align:right; color:var(--amber); flex-shrink:0; }
 
-  /* ---------- radar scanner ---------- */
-  .radar-wrap{ margin-top:32px; text-align:center; flex-shrink:0; }
-  .radar-title{ font-size:10px; letter-spacing:0.08em; text-transform:uppercase; margin-bottom:14px; }
-  .radar{
-    position:relative; width:160px; height:160px; margin:0 auto; border-radius:50%;
-    border:1px solid rgba(227,172,63,0.25); overflow:hidden;
-    background:radial-gradient(circle, rgba(227,172,63,0.03), transparent 70%);
+  /* ---------- schematic: wireframe core + leader-line callouts to real connections ---------- */
+  .schematic-wrap{ flex:1; min-height:0; display:flex; flex-direction:column; }
+  .sc-scan-tag{ display:inline-flex; align-items:center; gap:8px; margin-bottom:6px; flex-shrink:0; }
+  .sc-scan-tag .dots::after{ content:''; animation:scDots 1.4s steps(4) infinite; }
+  @keyframes scDots{ 0%{ content:''; } 25%{ content:'.'; } 50%{ content:'..'; } 75%{ content:'...'; } 100%{ content:''; } }
+  .sc-stage{ position:relative; flex:1; min-height:0; }
+  .sc-stage svg{ width:100%; height:100%; display:block; }
+  .sc-wire{ fill:none; stroke:rgba(227,172,63,0.5); stroke-width:1; }
+  .sc-wire.dim{ stroke:rgba(227,172,63,0.2); }
+  .sc-node-dot{ fill:var(--bg); stroke:var(--amber); stroke-width:1.5; }
+  .sc-leader{ stroke:rgba(227,172,63,0.35); stroke-width:1; fill:none; stroke-dasharray:2 3; }
+  .sc-pulse-dot{ fill:var(--amber); filter:drop-shadow(0 0 3px rgba(227,172,63,0.8)); }
+  .sc-tag-fo{ overflow:visible; }
+  .sc-tag-box{
+    background:rgba(14,13,11,0.9); border:1px solid rgba(227,172,63,0.35); border-radius:2px;
+    padding:4px 8px; font-size:10px; display:inline-flex; align-items:center; gap:6px; white-space:nowrap;
   }
-  .radar-ring{ position:absolute; border:1px solid rgba(227,172,63,0.15); border-radius:50%; }
-  .radar-ring.r1{ inset:20%; }
-  .radar-ring.r2{ inset:40%; }
-  .radar-ring.r3{ inset:60%; }
-  .radar-cross{ position:absolute; background:rgba(227,172,63,0.12); }
-  .radar-cross.h{ left:0; right:0; top:50%; height:1px; }
-  .radar-cross.v{ top:0; bottom:0; left:50%; width:1px; }
-  .radar-sweep{
-    position:absolute; inset:0;
-    background:conic-gradient(from 0deg, rgba(227,172,63,0.4), transparent 35deg, transparent 360deg);
-    animation:radarSpin 3s linear infinite;
-  }
-  @keyframes radarSpin{ from{ transform:rotate(0deg); } to{ transform:rotate(360deg); } }
-  .radar-blip{
-    position:absolute; width:5px; height:5px; border-radius:50%;
-    background:var(--ok); box-shadow:0 0 6px var(--ok); animation:blipPulse 2.6s ease-in-out infinite;
-  }
-  .radar-blip.b1{ top:30%; left:62%; animation-delay:0.3s; }
-  .radar-blip.b2{ top:68%; left:36%; animation-delay:1.5s; }
-  @keyframes blipPulse{ 0%,100%{ opacity:0; } 50%{ opacity:1; } }
-
-  /* ---------- honest placeholder for real status, once sites deploy ---------- */
-  .pending-block{
-    flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center;
-    text-align:center; gap:10px; padding:20px 10px;
-  }
-  .pending-dots{ font-size:20px; color:var(--dim); letter-spacing:6px; animation:pendingPulse 1.6s ease-in-out infinite; }
-  @keyframes pendingPulse{ 0%,100%{ opacity:0.3; } 50%{ opacity:0.9; } }
-  .pending-text{ font-size:11.5px; line-height:1.6; max-width:190px; color:var(--dim); }
+  .sc-tag-box .dot{ width:5px; height:5px; border-radius:50%; flex-shrink:0; }
+  .sc-tag-box .dot.online{ background:var(--ok); box-shadow:0 0 5px var(--ok); }
+  .sc-tag-box .dot.syncing{ background:var(--amber); box-shadow:0 0 5px var(--amber); animation:scPulse 1.6s ease-in-out infinite; }
+  .sc-tag-box .dot.reserved{ background:var(--dim); }
+  @keyframes scPulse{ 0%,100%{ opacity:0.4; } 50%{ opacity:1; } }
+  .sc-tag-box .path{ color:var(--white); }
 
   @media (prefers-reduced-motion: reduce){ *{ animation:none !important; } .boot-line{ opacity:1 !important; } .feed-line{ opacity:1 !important; } }
 </style>
@@ -329,20 +315,6 @@
           <div class="line dim" style="margin-top:10px;">-rw-r--r--&nbsp;&nbsp;1 dirosan&nbsp;&nbsp;staff&nbsp;&nbsp;142B&nbsp;&nbsp;archive.log</div>
           <div class="line dim">-rw-r--r--&nbsp;&nbsp;1 dirosan&nbsp;&nbsp;staff&nbsp;&nbsp;&nbsp;88B&nbsp;&nbsp;network.log</div>
           <div class="line">-rw-------&nbsp;&nbsp;1 dirosan&nbsp;&nbsp;staff&nbsp;&nbsp;&nbsp;&nbsp;0B&nbsp;&nbsp;<span class="odd-file" id="oddFile">????????.tmp</span></div>
-
-          <div class="radar-wrap">
-            <div class="radar-title dim">scanning /var/log</div>
-            <div class="radar">
-              <div class="radar-cross h"></div>
-              <div class="radar-cross v"></div>
-              <div class="radar-ring r1"></div>
-              <div class="radar-ring r2"></div>
-              <div class="radar-ring r3"></div>
-              <div class="radar-sweep"></div>
-              <div class="radar-blip b1"></div>
-              <div class="radar-blip b2"></div>
-            </div>
-          </div>
         </div>
 
         <div class="session-log" id="sessionLog"></div>
@@ -394,10 +366,45 @@
 
     <div class="side-monitor power-on" id="sysStatsPanel">
       <div class="titlebar"><span>sys-stats — tty3</span></div>
-      <div class="feed-title dim">network status</div>
-      <div class="pending-block">
-        <div class="pending-dots">···</div>
-        <p class="pending-text">Real status for each site comes online as they're deployed. Nothing invented shown here in the meantime.</p>
+      <div class="schematic-wrap">
+        <div class="sc-scan-tag"><span class="white">dirosan</span><span class="dim">scanning<span class="dots"></span></span></div>
+        <div class="sc-stage">
+          <svg viewBox="0 0 640 320" preserveAspectRatio="xMidYMid meet">
+            <g>
+              <polygon class="sc-wire" points="320,120 360,142 360,182 320,204 280,182 280,142" />
+              <polygon class="sc-wire dim" points="320,95 400,125 400,200 320,230 240,200 240,125" />
+              <line class="sc-wire dim" x1="320" y1="95" x2="320" y2="120" />
+              <line class="sc-wire dim" x1="400" y1="125" x2="360" y2="142" />
+              <line class="sc-wire dim" x1="400" y1="200" x2="360" y2="182" />
+              <line class="sc-wire dim" x1="320" y1="230" x2="320" y2="204" />
+              <line class="sc-wire dim" x1="240" y1="200" x2="280" y2="182" />
+              <line class="sc-wire dim" x1="240" y1="125" x2="280" y2="142" />
+              <line class="sc-wire" x1="320" y1="120" x2="320" y2="204" />
+              <line class="sc-wire dim" x1="280" y1="142" x2="360" y2="182" />
+              <line class="sc-wire dim" x1="360" y1="142" x2="280" y2="182" />
+            </g>
+
+            <path class="sc-leader" d="M 280,138 L 210,108 L 120,108" />
+            <path class="sc-leader" d="M 288,192 L 210,238 L 170,262" />
+            <path class="sc-leader" d="M 360,138 L 430,108 L 520,108" />
+            <path class="sc-leader" d="M 360,192 L 430,238 L 470,262" />
+
+            <circle class="sc-node-dot" cx="280" cy="138" r="2.6" />
+            <circle class="sc-node-dot" cx="288" cy="192" r="2.6" />
+            <circle class="sc-node-dot" cx="360" cy="138" r="2.6" />
+            <circle class="sc-node-dot" cx="360" cy="192" r="2.6" />
+
+            <circle class="sc-pulse-dot" r="1.8"><animateMotion dur="3.4s" repeatCount="indefinite" path="M 280,138 L 210,108 L 120,108" /></circle>
+            <circle class="sc-pulse-dot" r="1.8"><animateMotion dur="3.8s" begin="0.4s" repeatCount="indefinite" path="M 288,192 L 210,238 L 170,262" /></circle>
+            <circle class="sc-pulse-dot" r="1.8"><animateMotion dur="3.6s" begin="1.1s" repeatCount="indefinite" path="M 360,138 L 430,108 L 520,108" /></circle>
+            <circle class="sc-pulse-dot" r="1.8"><animateMotion dur="3.9s" begin="1.5s" repeatCount="indefinite" path="M 360,192 L 430,238 L 470,262" /></circle>
+
+            <foreignObject x="10" y="90" width="140" height="30" class="sc-tag-fo"><div class="sc-tag-box" xmlns="http://www.w3.org/1999/xhtml"><span class="dot online"></span><span class="path">******.dirosan.com</span></div></foreignObject>
+            <foreignObject x="60" y="248" width="150" height="30" class="sc-tag-fo"><div class="sc-tag-box" xmlns="http://www.w3.org/1999/xhtml"><span class="dot syncing"></span><span class="path">******.dirosan.com</span></div></foreignObject>
+            <foreignObject x="490" y="90" width="140" height="30" class="sc-tag-fo"><div class="sc-tag-box" xmlns="http://www.w3.org/1999/xhtml"><span class="dot online"></span><span class="path">*****.dirosan.com</span></div></foreignObject>
+            <foreignObject x="440" y="248" width="140" height="30" class="sc-tag-fo"><div class="sc-tag-box" xmlns="http://www.w3.org/1999/xhtml"><span class="dot reserved"></span><span class="path">[reserved]</span></div></foreignObject>
+          </svg>
+        </div>
       </div>
     </div>
   </div>
