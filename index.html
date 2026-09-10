@@ -104,8 +104,8 @@
   /* ---------- desk layout ---------- */
   .desk{
     position:relative; z-index:1;
-    display:grid; grid-template-columns:280px minmax(0,1fr); gap:26px;
-    width:92vw; max-width:1500px; height:calc(100vh - 64px); align-items:stretch;
+    display:grid; grid-template-columns:minmax(280px, 20vw) minmax(0,1fr); gap:26px;
+    width:min(94vw, 2200px); height:calc(100vh - 64px); align-items:stretch;
     opacity:0; transition:opacity 0.6s ease;
   }
   .desk.show{ opacity:1; }
@@ -145,9 +145,9 @@
     background:radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,0.45) 100%);
   }
 
-  .titlebar{ display:flex; justify-content:space-between; color:var(--dim); font-size:11px; letter-spacing:0.05em; margin-bottom:18px; flex-shrink:0; }
+  .titlebar{ display:flex; justify-content:space-between; color:var(--dim); font-size:clamp(11px, 0.8vw, 14px); letter-spacing:0.05em; margin-bottom:18px; flex-shrink:0; }
 
-  .line{ font-size:13px; line-height:1.9; white-space:pre-wrap; }
+  .line{ font-size:clamp(13px, 0.95vw, 17px); line-height:1.9; white-space:pre-wrap; }
   .tag-ok{ color:var(--ok); }
   .tag-warn{ color:var(--amber); }
   .dim{ color:var(--dim); }
@@ -157,12 +157,12 @@
   .boot-line.show{ opacity:1; animation:lineIn 0.3s ease; }
   @keyframes lineIn{ from{ opacity:0; transform:translateY(3px); } to{ opacity:1; transform:translateY(0); } }
 
-  .prompt-row{ display:flex; gap:8px; font-size:13px; margin-top:14px; flex-shrink:0; }
+  .prompt-row{ display:flex; gap:8px; font-size:clamp(13px, 0.95vw, 17px); margin-top:14px; flex-shrink:0; }
   @keyframes blink{ 50%{ opacity:0; } }
 
   .cmd-input{
     flex:1; background:transparent; border:none; outline:none; color:var(--amber);
-    font-family:inherit; font-size:13px; caret-color:var(--amber); padding:0; min-width:0;
+    font-family:inherit; font-size:clamp(13px, 0.95vw, 17px); caret-color:var(--amber); padding:0; min-width:0;
   }
   .cmd-input::placeholder{ color:var(--dim); }
 
@@ -191,7 +191,7 @@
   .archive-view.show{ display:block; }
   .boot-view.hide{ display:none; }
 
-  .archive-header{ color:var(--dim); font-size:12px; margin-bottom:6px; }
+  .archive-header{ color:var(--dim); font-size:clamp(12px, 0.85vw, 15px); margin-bottom:6px; }
   table{ width:100%; border-collapse:collapse; font-size:12.5px; margin-top:10px; }
   td{ padding:9px 6px; border-bottom:1px solid #17140f; }
   tr.entry{ cursor:pointer; }
@@ -215,10 +215,10 @@
   }
   @keyframes syncFill{ from{ stroke-dashoffset:38; } to{ stroke-dashoffset:0; } }
 
-  .back-line{ color:var(--dim); font-size:12px; margin-top:20px; cursor:pointer; display:inline-block; }
+  .back-line{ color:var(--dim); font-size:clamp(12px, 0.85vw, 15px); margin-top:20px; cursor:pointer; display:inline-block; }
   .back-line:hover{ color:var(--white); }
 
-  .feed-title{ font-size:10px; letter-spacing:0.08em; text-transform:uppercase; margin-bottom:10px; flex-shrink:0; }
+  .feed-title{ font-size:clamp(10px, 0.72vw, 13px); letter-spacing:0.08em; text-transform:uppercase; margin-bottom:10px; flex-shrink:0; }
   .feed-list{ display:flex; flex-direction:column; gap:7px; overflow:hidden; flex:1; }
   .feed-line{ font-size:10.5px; line-height:1.5; opacity:0; animation:feedIn 0.4s ease forwards; word-break:break-all; }
   .feed-line.ok{ color:var(--ok); }
@@ -229,13 +229,13 @@
   /* ---------- this session: real, honest, fills the sidebar gap ---------- */
   .session-block{ margin-top:22px; flex:1; min-height:0; display:flex; flex-direction:column; }
   .session-rows{ flex:1; min-height:0; display:flex; flex-direction:column; justify-content:center; }
-  .session-row{ display:flex; justify-content:space-between; font-size:11px; margin-bottom:9px; flex-shrink:0; }
+  .session-row{ display:flex; justify-content:space-between; font-size:clamp(11px, 0.8vw, 14px); margin-bottom:9px; flex-shrink:0; }
   .session-row .k{ color:var(--dim); }
   .session-row .v{ color:var(--white); font-variant-numeric:tabular-nums; }
 
   /* ---------- real, live gauges for this browser tab: btop-style scrolling graph ---------- */
   .gauge-block{ margin-top:18px; display:flex; flex-direction:column; gap:10px; flex-shrink:0; }
-  .gauge-row{ display:flex; align-items:center; gap:8px; font-size:11px; }
+  .gauge-row{ display:flex; align-items:center; gap:8px; font-size:clamp(11px, 0.8vw, 14px); }
   .gauge-row .gauge-name{ width:32px; color:var(--dim); flex-shrink:0; }
   .gauge-row .gauge-bar{ flex:1; display:flex; align-items:flex-end; gap:2px; height:20px; overflow:hidden; }
   .gauge-row .gauge-pct{ width:42px; text-align:right; color:var(--amber); flex-shrink:0; font-variant-numeric:tabular-nums; }
@@ -272,6 +272,15 @@
   .sc-tag-box .path{ color:var(--white); }
 
   @media (prefers-reduced-motion: reduce){ *{ animation:none !important; } .boot-line{ opacity:1 !important; } .feed-line{ opacity:1 !important; } }
+
+  /* the sidebar's height is auto below 1000px, so nothing needs to compress
+     to fit a fixed box — let the session block take its natural height
+     instead of centering into a collapsed flex:1/min-height:0 area, which
+     otherwise spills its rows into the sections next to it */
+  @media (max-width:1000px){
+    .session-block{ flex:none; margin-top:18px; }
+    .session-rows{ flex:none; justify-content:flex-start; }
+  }
 </style>
 </head>
 <body>
