@@ -84,7 +84,7 @@ try {
     await page.keyboard.press('Enter');
     await new Promise((r) => setTimeout(r, 200));
     const promptReply = await page.evaluate(() => document.getElementById('sessionLog').innerText);
-    if (!promptReply.includes('it support engineer')) {
+    if (!promptReply.includes('dirosan')) {
       fail(`prompt did not reply correctly to 'whoami', got: ${JSON.stringify(promptReply)}`);
     }
 

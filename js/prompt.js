@@ -1,7 +1,7 @@
 // The interactive command prompt — a real input that replies per command.
 
 const REPLIES = {
-  whoami: 'dirosan sivarajah — it support engineer, bristol',
+  whoami: 'dirosan',
   help: 'available commands: whoami, ls, date, sudo, clear',
   ls: 'archive.log  network.log  ????????.tmp',
   date: () => new Date().toString(),
