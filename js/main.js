@@ -1,11 +1,12 @@
-import { revealBootLines, startClock } from './boot.js?v=5';
-import { startFeed } from './feed.js?v=5';
-import { initPrompt } from './prompt.js?v=5';
-import { createHiddenFile, registerHiddenFileHit } from './hidden-file.js?v=5';
-import { enterArchive, exitArchive, wireArchiveLinks } from './archive.js?v=5';
-import { runIntro } from './intro.js?v=5';
-import { renderAsciiBg } from './ascii-bg.js?v=5';
-import { startGauges } from './gauges.js?v=5';
+import { revealBootLines, startClock } from './boot.js?v=6';
+import { startFeed } from './feed.js?v=6';
+import { initPrompt } from './prompt.js?v=6';
+import { createHiddenFile, registerHiddenFileHit } from './hidden-file.js?v=6';
+import { enterArchive, exitArchive, wireArchiveLinks } from './archive.js?v=6';
+import { runIntro } from './intro.js?v=6';
+import { renderAsciiBg } from './ascii-bg.js?v=6';
+import { startGauges } from './gauges.js?v=6';
+import { startSession } from './session.js?v=6';
 
 const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -40,6 +41,7 @@ function startSystem() {
   startClock(document.getElementById('clock'));
   startFeed(document.getElementById('feedList'), reduceMotion);
   startGauges(reduceMotion);
+  startSession(reduceMotion);
 
   const desk = document.getElementById('desk');
   desk.classList.add('show');

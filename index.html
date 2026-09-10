@@ -221,11 +221,23 @@
   @keyframes feedIn{ from{ opacity:0; transform:translateY(4px); } to{ opacity:1; transform:translateY(0); } }
 
   /* ---------- ambient resource gauges ---------- */
-  .gauge-block{ margin-top:18px; display:flex; flex-direction:column; gap:8px; }
+  /* ---------- this session: real, honest, fills the sidebar gap ---------- */
+  .session-block{ margin-top:22px; flex:1; min-height:0; display:flex; flex-direction:column; }
+  .session-rows{ flex:1; min-height:0; display:flex; flex-direction:column; justify-content:center; }
+  .session-row{ display:flex; justify-content:space-between; font-size:11px; margin-bottom:9px; flex-shrink:0; }
+  .session-row .k{ color:var(--dim); }
+  .session-row .v{ color:var(--white); font-variant-numeric:tabular-nums; }
+
+  /* ---------- real, live gauges for this browser tab: btop-style scrolling graph ---------- */
+  .gauge-block{ margin-top:18px; display:flex; flex-direction:column; gap:10px; flex-shrink:0; }
   .gauge-row{ display:flex; align-items:center; gap:8px; font-size:11px; }
   .gauge-row .gauge-name{ width:32px; color:var(--dim); flex-shrink:0; }
-  .gauge-row .gauge-bar{ letter-spacing:-1px; flex:1; overflow:hidden; white-space:nowrap; }
-  .gauge-row .gauge-pct{ width:34px; text-align:right; color:var(--amber); flex-shrink:0; }
+  .gauge-row .gauge-bar{ flex:1; display:flex; align-items:flex-end; gap:2px; height:20px; overflow:hidden; }
+  .gauge-row .gauge-pct{ width:42px; text-align:right; color:var(--amber); flex-shrink:0; font-variant-numeric:tabular-nums; }
+  .gauge-col{ flex:1; min-width:2px; border-radius:1px 1px 0 0; transition:height 0.2s ease; }
+  .blk-low{ background:var(--ok); }
+  .blk-mid{ background:var(--amber); }
+  .blk-high{ background:var(--coral, #e2725b); }
 
   /* ---------- schematic: wireframe core + leader-line callouts to real connections ---------- */
   .schematic-wrap{ flex:1; min-height:0; display:flex; flex-direction:column; }
@@ -280,11 +292,23 @@
       <div class="feed-title dim">live feed</div>
       <div class="feed-list" id="feedList"></div>
 
-      <div class="feed-title dim">resources</div>
+      <div class="session-block">
+        <div class="feed-title dim">this session</div>
+        <div class="session-rows">
+          <div class="session-row"><span class="k">connected</span><span class="v" id="sessionUptime">00:00:00</span></div>
+          <div class="session-row"><span class="k">viewport</span><span class="v" id="sessionViewport">—</span></div>
+          <div class="session-row"><span class="k">screen</span><span class="v" id="sessionScreen">—</span></div>
+          <div class="session-row"><span class="k">timezone</span><span class="v" id="sessionTz">—</span></div>
+          <div class="session-row"><span class="k">language</span><span class="v" id="sessionLang">—</span></div>
+          <div class="session-row"><span class="k">network</span><span class="v" id="sessionOnline">—</span></div>
+        </div>
+      </div>
+
+      <div class="feed-title dim">this tab</div>
       <div class="gauge-block">
-        <div class="gauge-row"><span class="gauge-name">cpu</span><span class="gauge-bar" id="gaugeCpuBar"></span><span class="gauge-pct" id="gaugeCpuPct"></span></div>
-        <div class="gauge-row"><span class="gauge-name">mem</span><span class="gauge-bar" id="gaugeMemBar"></span><span class="gauge-pct" id="gaugeMemPct"></span></div>
-        <div class="gauge-row"><span class="gauge-name">disk</span><span class="gauge-bar" id="gaugeDiskBar"></span><span class="gauge-pct" id="gaugeDiskPct"></span></div>
+        <div class="gauge-row"><span class="gauge-name">heap</span><span class="gauge-bar" id="gaugeHeapBar"></span><span class="gauge-pct" id="gaugeHeapPct"></span></div>
+        <div class="gauge-row"><span class="gauge-name">fps</span><span class="gauge-bar" id="gaugeFpsBar"></span><span class="gauge-pct" id="gaugeFpsPct"></span></div>
+        <div class="gauge-row"><span class="gauge-name">lag</span><span class="gauge-bar" id="gaugeLagBar"></span><span class="gauge-pct" id="gaugeLagPct"></span></div>
       </div>
     </div>
   </div>
@@ -410,6 +434,6 @@
   </div>
 </div>
 
-<script type="module" src="js/main.js?v=5"></script>
+<script type="module" src="js/main.js?v=6"></script>
 </body>
 </html>
