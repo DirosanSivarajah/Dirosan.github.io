@@ -32,7 +32,7 @@ oddFile.addEventListener('click', () => {
 
 grantedBtn.addEventListener('click', () => enterArchive(bootView, archiveView));
 backLine.addEventListener('click', () => exitArchive(bootView, archiveView));
-wireArchiveLinks(document.querySelectorAll('tr.entry:not(.reserved)'));
+wireArchiveLinks(document.querySelectorAll('tr.entry:not(.reserved):not(.pending)'));
 
 initPrompt(document.getElementById('cmdInput'), document.getElementById('sessionLog'));
 
