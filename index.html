@@ -191,6 +191,13 @@
   .archive-view.show{ display:block; }
   .boot-view.hide{ display:none; }
 
+  /* ---------- materialize: the crossfade between boot-view and archive-view ---------- */
+  .boot-view, .archive-view.show{ transition:opacity 0.35s ease, filter 0.35s ease; }
+  .boot-view.view-fading, .archive-view.view-fading{ opacity:0; filter:blur(3px); }
+  @media (prefers-reduced-motion: reduce){
+    .boot-view, .archive-view.show{ transition:none; }
+  }
+
   .archive-header{ color:var(--dim); font-size:clamp(12px, 0.85vw, 15px); margin-bottom:6px; }
   table{ width:100%; border-collapse:collapse; font-size:12.5px; margin-top:10px; }
   td{ padding:9px 6px; border-bottom:1px solid #17140f; }
@@ -472,6 +479,6 @@
   </div>
 </div>
 
-<script type="module" src="js/main.js?v=6"></script>
+<script type="module" src="js/main.js?v=7"></script>
 </body>
 </html>

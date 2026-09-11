@@ -1,12 +1,12 @@
-import { revealBootLines, startClock } from './boot.js?v=6';
-import { startFeed } from './feed.js?v=6';
-import { initPrompt } from './prompt.js?v=6';
-import { createHiddenFile, registerHiddenFileHit } from './hidden-file.js?v=6';
-import { enterArchive, exitArchive, wireArchiveLinks } from './archive.js?v=6';
-import { runIntro } from './intro.js?v=6';
-import { renderAsciiBg } from './ascii-bg.js?v=6';
-import { startGauges } from './gauges.js?v=6';
-import { startSession } from './session.js?v=6';
+import { revealBootLines, startClock } from './boot.js?v=7';
+import { startFeed } from './feed.js?v=7';
+import { initPrompt } from './prompt.js?v=7';
+import { createHiddenFile, registerHiddenFileHit } from './hidden-file.js?v=7';
+import { enterArchive, exitArchive, wireArchiveLinks } from './archive.js?v=7';
+import { runIntro } from './intro.js?v=7';
+import { renderAsciiBg } from './ascii-bg.js?v=7';
+import { startGauges } from './gauges.js?v=7';
+import { startSession } from './session.js?v=7';
 
 const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -30,8 +30,8 @@ oddFile.addEventListener('click', () => {
   }
 });
 
-grantedBtn.addEventListener('click', () => enterArchive(bootView, archiveView));
-backLine.addEventListener('click', () => exitArchive(bootView, archiveView));
+grantedBtn.addEventListener('click', () => enterArchive(bootView, archiveView, reduceMotion));
+backLine.addEventListener('click', () => exitArchive(bootView, archiveView, reduceMotion));
 wireArchiveLinks(document.querySelectorAll('tr.entry:not(.reserved):not(.pending)'));
 
 initPrompt(document.getElementById('cmdInput'), document.getElementById('sessionLog'));
