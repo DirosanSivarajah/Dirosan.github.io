@@ -271,6 +271,27 @@
   @keyframes scPulse{ 0%,100%{ opacity:0.4; } 50%{ opacity:1; } }
   .sc-tag-box .path{ color:var(--white); }
 
+  /* ---------- frame lock: a HUD-style scan bracket around the schematic ---------- */
+  .frame-corner{
+    position:absolute; width:16px; height:16px; border:1.5px solid rgba(227,172,63,0.55);
+    filter:drop-shadow(0 0 3px rgba(227,172,63,0.4));
+    animation:frameBreathe 3s ease-in-out infinite; z-index:2;
+  }
+  .frame-corner.tl{ top:0; left:0; border-right:none; border-bottom:none; }
+  .frame-corner.tr{ top:0; right:0; border-left:none; border-bottom:none; }
+  .frame-corner.bl{ bottom:0; left:0; border-right:none; border-top:none; }
+  .frame-corner.br{ bottom:0; right:0; border-left:none; border-top:none; }
+  @keyframes frameBreathe{ 0%,100%{ opacity:0.5; } 50%{ opacity:1; } }
+
+  .frame-scan{
+    position:absolute; left:0; right:0; height:2px; top:0; z-index:2;
+    background:linear-gradient(90deg, transparent, rgba(244,234,210,0.8), transparent);
+    animation:frameScanMove 4s ease-in-out infinite alternate;
+  }
+  @keyframes frameScanMove{ from{ top:0; } to{ top:calc(100% - 2px); } }
+
+  @media (prefers-reduced-motion: reduce){ .frame-corner, .frame-scan{ animation:none; } }
+
   @media (prefers-reduced-motion: reduce){ *{ animation:none !important; } .boot-line{ opacity:1 !important; } .feed-line{ opacity:1 !important; } }
 
   /* the sidebar's height is auto below 1000px, so nothing needs to compress
@@ -405,6 +426,11 @@
       <div class="schematic-wrap">
         <div class="sc-scan-tag"><span class="white">dirosan</span><span class="dim">scanning<span class="dots"></span></span></div>
         <div class="sc-stage">
+          <span class="frame-corner tl"></span>
+          <span class="frame-corner tr"></span>
+          <span class="frame-corner bl"></span>
+          <span class="frame-corner br"></span>
+          <span class="frame-scan"></span>
           <svg viewBox="0 0 640 320" preserveAspectRatio="xMidYMid meet">
             <g>
               <polygon class="sc-wire" points="320,120 360,142 360,182 320,204 280,182 280,142" />
