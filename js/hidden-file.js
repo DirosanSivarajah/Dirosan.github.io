@@ -1,6 +1,5 @@
-// The hidden trigger — an oddly-named file among the boot log's directory
-// listing. Three clicks unlock the archive, same mechanic as before, just
-// reframed for the terminal.
+// The hidden trigger — an oddly-named file in the boot log's directory
+// listing. Three clicks unlock the archive.
 
 const HITS_NEEDED = 3;
 

@@ -1,13 +1,6 @@
-// Real, live measurements of this browser tab — not a claim about your
-// whole system (a static site with no backend can't see that). Rendered
-// as a scrolling block-height history, like a real terminal system
-// monitor (btop/htop).
-//
-//   heap — JS heap used, as a % of this tab's heap limit (Chromium only;
-//          shown as "n/a" elsewhere, never faked)
-//   fps  — live frames rendered per second, via requestAnimationFrame
-//   lag  — main-thread responsiveness: how late a scheduled timer actually
-//          fires, in milliseconds
+// Real, live measurements of this browser tab (heap %, fps, main-thread
+// lag) — not a claim about your whole system, which a static site can't
+// see. Heap is Chromium-only; shown as "n/a" elsewhere, never faked.
 
 const HISTORY_LEN = 26;
 

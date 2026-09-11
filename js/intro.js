@@ -1,8 +1,6 @@
-// The landing sequence: a WELCOME banner, a GUIDE persona typing a boot
-// narration, three real panels booting in parallel, then a decrypt
-// wordmark, before handing off to the real terminal. Skippable at any
-// point — every timer is tracked so a skip cleanly cancels whatever's
-// still pending instead of leaving stray callbacks running.
+// The landing sequence: WELCOME banner, GUIDE narration, three panels
+// booting in parallel, then the decrypt wordmark. Skippable at any
+// point — every timer is tracked so a skip cancels whatever's pending.
 
 const INTRO_LINES = [
   'connection established.',
@@ -34,11 +32,8 @@ const BITMAP_FONT = {
 const WELCOME_WORD = 'WELCOME';
 const WORDMARK = 'DIROSAN';
 
-// Three real panels of the desk, each with its own short, honest boot
-// log — what that panel actually does, not a claim about anything else.
-// Each runs at a slightly different pace so they don't finish in lockstep,
-// like genuinely separate processes rather than one animation played
-// three times.
+// The desk's three real panels, each with its own honest boot log and
+// a slightly different pace so they don't finish in lockstep.
 const MINI_LOGS = [
   { id: 'miniLogA', gapMs: 230, lines: [
     { text: 'starting live feed...', ok: false },
@@ -110,7 +105,7 @@ export function runIntro(reduceMotion, onComplete) {
   const overlay = document.getElementById('introOverlay');
   const introText = document.getElementById('introText');
   const multiBoot = document.getElementById('multiBoot');
-  const avatarPhase = document.getElementById('avatarPhase');
+  const wordmarkPhase = document.getElementById('wordmarkPhase');
   const skipBtn = document.getElementById('introSkip');
 
   let done = false;
@@ -155,7 +150,7 @@ export function runIntro(reduceMotion, onComplete) {
         lines.forEach((line) => appendRow(logEl, line.text, line.ok ? 'ok' : ''));
         appendRow(logEl, 'done', 'done');
       });
-      after(showAvatarPhase, 250);
+      after(showWordmarkPhase, 250);
       return;
     }
 
@@ -175,20 +170,20 @@ export function runIntro(reduceMotion, onComplete) {
     // converge all three toward the center before handing off
     after(() => {
       multiBoot.classList.add('converge');
-      after(showAvatarPhase, MINI_CONVERGE_MS);
+      after(showWordmarkPhase, MINI_CONVERGE_MS);
     }, latestFinish + MINI_READ_PAUSE_MS);
   }
 
-  function showAvatarPhase() {
+  function showWordmarkPhase() {
     multiBoot.style.display = 'none';
     introText.style.display = 'none';
-    avatarPhase.style.display = 'flex';
-    requestAnimationFrame(() => avatarPhase.classList.add('show'));
+    wordmarkPhase.style.display = 'flex';
+    requestAnimationFrame(() => wordmarkPhase.classList.add('show'));
 
-    const fill = document.getElementById('avatarLoadFill');
+    const fill = document.getElementById('wordmarkLoadFill');
     after(() => { fill.style.width = '100%'; }, reduceMotion ? 0 : 150);
 
-    const pctEl = document.getElementById('avatarPct');
+    const pctEl = document.getElementById('wordmarkPct');
     if (reduceMotion) {
       pctEl.textContent = '100%';
     } else {
@@ -203,7 +198,7 @@ export function runIntro(reduceMotion, onComplete) {
     }
 
     fillMixGrid(document.getElementById('mixGrid'));
-    buildBitmapWord(WORDMARK, document.getElementById('mixText'), reduceMotion);
+    buildBitmapWord(WORDMARK, document.getElementById('mixLetters'), reduceMotion);
 
     after(finish, reduceMotion ? 400 : 2200);
   }

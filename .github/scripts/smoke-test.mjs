@@ -4,8 +4,8 @@
 // archive, talk to the prompt) doesn't behave as expected.
 //
 // Runs with prefers-reduced-motion emulated so the intro sequence settles
-// in under a second instead of the real ~13s typewriter/avatar sequence —
-// this also exercises the reduced-motion code path as a side effect.
+// in under a second instead of the real ~15s sequence — this also
+// exercises the reduced-motion code path as a side effect.
 
 import puppeteer from 'puppeteer';
 import { spawn } from 'child_process';
