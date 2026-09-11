@@ -17,6 +17,43 @@ const INTRO_LINES = [
 const WORDMARK = 'DIROSAN';
 const SCRAMBLE_CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ#@$%&*01';
 
+// 5x7 bitmap dot-matrix font, just the letters "WELCOME" needs
+const WELCOME_FONT = {
+  W: ['10001','10001','10001','10101','10101','11011','10001'],
+  E: ['11111','10000','10000','11110','10000','10000','11111'],
+  L: ['10000','10000','10000','10000','10000','10000','11111'],
+  C: ['01111','10000','10000','10000','10000','10000','01111'],
+  O: ['01110','10001','10001','10001','10001','10001','01110'],
+  M: ['10001','11011','10101','10101','10001','10001','10001']
+};
+const WELCOME_WORD = 'WELCOME';
+
+// Three real panels of the desk, each with its own short, honest boot
+// log — what that panel actually does, not a claim about anything else.
+// Each runs at a slightly different pace so they don't finish in lockstep,
+// like genuinely separate processes rather than one animation played
+// three times.
+const MINI_LOGS = [
+  { id: 'miniLogA', gapMs: 230, lines: [
+    { text: 'starting live feed...', ok: false },
+    { text: 'reading session info...', ok: true },
+    { text: 'starting gauges...', ok: true }
+  ] },
+  { id: 'miniLogB', gapMs: 270, lines: [
+    { text: 'mounting /home/dirosan', ok: false },
+    { text: 'loading archive index...', ok: true },
+    { text: 'starting prompt shell...', ok: true }
+  ] },
+  { id: 'miniLogC', gapMs: 310, lines: [
+    { text: 'tracing connections...', ok: false },
+    { text: 'building schematic...', ok: true },
+    { text: 'scanning /var/log...', ok: true }
+  ] }
+];
+const MINI_DONE_DELAY_MS = 300;
+const MINI_READ_PAUSE_MS = 650;
+const MINI_CONVERGE_MS = 500;
+
 function fillMixGrid(el) {
   const cols = 22;
   const rows = 13;
@@ -60,9 +97,54 @@ function runDecrypt(el, reduceMotion) {
 export function runIntro(reduceMotion, onComplete) {
   const overlay = document.getElementById('introOverlay');
   const introText = document.getElementById('introText');
+  const multiBoot = document.getElementById('multiBoot');
   const avatarPhase = document.getElementById('avatarPhase');
 
+  function appendRow(logEl, text, cls) {
+    const row = document.createElement('div');
+    row.className = 'row' + (cls ? ' ' + cls : '');
+    row.textContent = cls === 'done' ? text : '> ' + text;
+    logEl.appendChild(row);
+  }
+
+  function showMultiBoot() {
+    introText.style.display = 'none';
+    multiBoot.style.display = 'flex';
+    multiBoot.classList.remove('converge');
+    requestAnimationFrame(() => multiBoot.classList.add('show'));
+
+    if (reduceMotion) {
+      MINI_LOGS.forEach(({ id, lines }) => {
+        const logEl = document.getElementById(id);
+        lines.forEach((line) => appendRow(logEl, line.text, line.ok ? 'ok' : ''));
+        appendRow(logEl, 'done', 'done');
+      });
+      setTimeout(showAvatarPhase, 250);
+      return;
+    }
+
+    let latestFinish = 0;
+    MINI_LOGS.forEach(({ id, gapMs, lines }) => {
+      const logEl = document.getElementById(id);
+      lines.forEach((line, i) => {
+        setTimeout(() => appendRow(logEl, line.text, line.ok ? 'ok' : ''), i * gapMs);
+      });
+      const lastLineAt = (lines.length - 1) * gapMs;
+      const doneAt = lastLineAt + MINI_DONE_DELAY_MS;
+      setTimeout(() => appendRow(logEl, 'done', 'done'), doneAt);
+      latestFinish = Math.max(latestFinish, doneAt);
+    });
+
+    // let the slowest terminal's "done" sit on screen for a beat, then
+    // converge all three toward the center before handing off
+    setTimeout(() => {
+      multiBoot.classList.add('converge');
+      setTimeout(showAvatarPhase, MINI_CONVERGE_MS);
+    }, latestFinish + MINI_READ_PAUSE_MS);
+  }
+
   function showAvatarPhase() {
+    multiBoot.style.display = 'none';
     introText.style.display = 'none';
     avatarPhase.style.display = 'flex';
     requestAnimationFrame(() => avatarPhase.classList.add('show'));
@@ -95,7 +177,7 @@ export function runIntro(reduceMotion, onComplete) {
 
   function typeLine(i) {
     if (i >= INTRO_LINES.length) {
-      showAvatarPhase();
+      showMultiBoot();
       return;
     }
 
@@ -131,5 +213,48 @@ export function runIntro(reduceMotion, onComplete) {
     })();
   }
 
-  typeLine(0);
+  function buildWelcomeLetters() {
+    const container = document.getElementById('welcomeLetters');
+    let colOffset = 0;
+    for (const ch of WELCOME_WORD) {
+      const pattern = WELCOME_FONT[ch];
+      const letterEl = document.createElement('div');
+      letterEl.className = 'wletter';
+      for (let r = 0; r < pattern.length; r++) {
+        for (let c = 0; c < pattern[r].length; c++) {
+          const on = pattern[r][c] === '1';
+          const cell = document.createElement('div');
+          cell.className = 'wcell' + (on ? ' on' : '');
+          if (on) {
+            const sweepDelay = Math.min(400, (colOffset + c) * 11);
+            cell.style.animationDelay = sweepDelay + 'ms';
+            requestAnimationFrame(() => cell.classList.add('lit'));
+          }
+          letterEl.appendChild(cell);
+        }
+      }
+      colOffset += pattern[0].length;
+      container.appendChild(letterEl);
+    }
+  }
+
+  function showWelcome() {
+    const welcomePhase = document.getElementById('welcomePhase');
+    if (reduceMotion) {
+      welcomePhase.style.display = 'none';
+      typeLine(0);
+      return;
+    }
+    buildWelcomeLetters();
+    requestAnimationFrame(() => welcomePhase.classList.add('show'));
+    setTimeout(() => {
+      welcomePhase.classList.add('leaving');
+      setTimeout(() => {
+        welcomePhase.style.display = 'none';
+        typeLine(0);
+      }, 500);
+    }, 2400);
+  }
+
+  showWelcome();
 }

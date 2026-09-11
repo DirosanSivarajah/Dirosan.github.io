@@ -1,12 +1,12 @@
-import { revealBootLines, startClock } from './boot.js?v=7';
-import { startFeed } from './feed.js?v=7';
-import { initPrompt } from './prompt.js?v=7';
-import { createHiddenFile, registerHiddenFileHit } from './hidden-file.js?v=7';
-import { enterArchive, exitArchive, wireArchiveLinks } from './archive.js?v=7';
-import { runIntro } from './intro.js?v=7';
-import { renderAsciiBg } from './ascii-bg.js?v=7';
-import { startGauges } from './gauges.js?v=7';
-import { startSession } from './session.js?v=7';
+import { revealBootLines, startClock } from './boot.js?v=8';
+import { startFeed } from './feed.js?v=8';
+import { initPrompt } from './prompt.js?v=8';
+import { createHiddenFile, registerHiddenFileHit } from './hidden-file.js?v=8';
+import { enterArchive, exitArchive, wireArchiveLinks } from './archive.js?v=8';
+import { runIntro } from './intro.js?v=8';
+import { renderAsciiBg } from './ascii-bg.js?v=8';
+import { startGauges } from './gauges.js?v=8';
+import { startSession } from './session.js?v=8';
 
 const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 

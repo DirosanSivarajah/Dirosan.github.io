@@ -49,6 +49,49 @@
     animation:blink 1s step-end infinite; vertical-align:middle; margin-left:2px;
   }
 
+  .welcome-phase{
+    position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+    opacity:0; transition:opacity 0.5s ease;
+  }
+  .welcome-phase.show{ opacity:1; }
+  .welcome-phase.leaving{ opacity:0; }
+
+  .welcome-frame{ position:relative; padding:clamp(20px, 3vw, 34px) clamp(26px, 4vw, 46px); }
+  .welcome-frame-line{ position:absolute; border:1px solid rgba(227,172,63,0.3); }
+  .welcome-frame-line.outer{ inset:0; }
+  .welcome-frame-line.inner{ inset:6px; }
+  .welcome-corner{ position:absolute; width:16px; height:16px; border:1.5px solid rgba(227,172,63,0.6); }
+  .welcome-corner.tl{ top:-1px; left:-1px; border-right:none; border-bottom:none; }
+  .welcome-corner.tr{ top:-1px; right:-1px; border-left:none; border-bottom:none; }
+  .welcome-corner.bl{ bottom:-1px; left:-1px; border-right:none; border-top:none; }
+  .welcome-corner.br{ bottom:-1px; right:-1px; border-left:none; border-top:none; }
+
+  .welcome-letters{ display:flex; gap:clamp(6px, 1vw, 10px); }
+  .wletter{
+    display:grid;
+    grid-template-columns:repeat(5, clamp(4px, 0.9vw, 7px));
+    grid-template-rows:repeat(7, clamp(4px, 0.9vw, 7px));
+    gap:clamp(1px, 0.2vw, 2px);
+  }
+  .wcell{ background:rgba(227,172,63,0.06); border-radius:1px; }
+  .wcell.on{ background:rgba(227,172,63,0.06); box-shadow:none; }
+  .wcell.on.lit{
+    background:var(--amber); box-shadow:0 0 4px rgba(227,172,63,0.6);
+    animation:wcellLock 1.6s steps(5) 1 forwards;
+  }
+  @keyframes wcellLock{
+    0%{ background:rgba(227,172,63,0.06); box-shadow:none; }
+    20%{ background:rgba(227,172,63,0.85); box-shadow:0 0 4px rgba(227,172,63,0.5); }
+    35%{ background:rgba(227,172,63,0.1); box-shadow:none; }
+    55%{ background:rgba(227,172,63,0.85); box-shadow:0 0 4px rgba(227,172,63,0.5); }
+    70%{ background:rgba(227,172,63,0.15); box-shadow:none; }
+    100%{ background:var(--amber); box-shadow:0 0 4px rgba(227,172,63,0.6); }
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    .wcell.on.lit{ animation:none; background:var(--amber); box-shadow:0 0 4px rgba(227,172,63,0.6); }
+  }
+
   .avatar-phase{
     display:flex; flex-direction:column; align-items:center; gap:18px;
     opacity:0; transition:opacity 0.6s ease;
@@ -100,6 +143,43 @@
     transition:width 1.6s linear;
   }
   .avatar-pct{ font-size:11px; color:var(--amber); }
+
+  /* ---------- multi-boot phase: the three real panels spinning up in parallel ---------- */
+  .multi-boot{
+    display:flex; gap:24px; flex-wrap:wrap; justify-content:center;
+    opacity:0; transition:opacity 0.4s ease, transform 0.5s ease, filter 0.5s ease;
+  }
+  .multi-boot.show{ opacity:1; }
+  .multi-boot.converge{ opacity:0; transform:scale(0.85); filter:blur(4px); }
+  .mini-term{
+    position:relative; width:280px; height:190px; background:var(--bg);
+    border:6px solid var(--frame); border-radius:8px; overflow:hidden;
+    box-shadow:0 16px 40px -12px rgba(0,0,0,0.8);
+    padding:14px 16px; display:flex; flex-direction:column;
+    opacity:0; transform:translateY(8px) scale(0.97);
+    animation:miniTermIn 0.4s ease forwards;
+  }
+  .mini-term:nth-child(2){ animation-delay:0.08s; }
+  .mini-term:nth-child(3){ animation-delay:0.16s; }
+  @keyframes miniTermIn{ to{ opacity:1; transform:translateY(0) scale(1); } }
+  .mini-term::before{
+    content:''; position:absolute; inset:0; pointer-events:none;
+    background:repeating-linear-gradient(rgba(0,0,0,0) 0px, rgba(0,0,0,0) 2px, rgba(0,0,0,0.12) 3px);
+    mix-blend-mode:multiply;
+  }
+  .mini-term-title{ font-size:12px; color:var(--dim); letter-spacing:0.05em; margin-bottom:12px; flex-shrink:0; }
+  .mini-term-log{ display:flex; flex-direction:column; gap:8px; font-size:13px; }
+  .mini-term-log .row{ color:var(--amber-dim); opacity:0; animation:miniLineIn 0.2s ease forwards; }
+  .mini-term-log .row.ok{ color:var(--ok); }
+  .mini-term-log .row.done{ color:var(--white); display:flex; align-items:center; gap:6px; margin-top:2px; }
+  .mini-term-log .row.done::before{ content:'✓'; color:var(--ok); }
+  @keyframes miniLineIn{ from{ opacity:0; transform:translateX(-3px); } to{ opacity:1; transform:translateX(0); } }
+
+  @media (prefers-reduced-motion: reduce){
+    .mini-term{ opacity:1; transform:none; animation:none; }
+    .mini-term-log .row{ opacity:1; animation:none; }
+    .multi-boot.converge{ opacity:0; transform:none; filter:none; }
+  }
 
   /* ---------- desk layout ---------- */
   .desk{
@@ -316,7 +396,30 @@
 <div class="ascii-bg" id="asciiBg"></div>
 
 <div class="intro-overlay" id="introOverlay">
+  <div class="welcome-phase" id="welcomePhase">
+    <div class="welcome-frame">
+      <div class="welcome-frame-line outer"></div>
+      <div class="welcome-frame-line inner"></div>
+      <div class="welcome-corner tl"></div><div class="welcome-corner tr"></div>
+      <div class="welcome-corner bl"></div><div class="welcome-corner br"></div>
+      <div class="welcome-letters" id="welcomeLetters"></div>
+    </div>
+  </div>
   <div class="intro-text" id="introText"></div>
+  <div class="multi-boot" id="multiBoot" style="display:none;">
+    <div class="mini-term">
+      <div class="mini-term-title">net-mon — tty2</div>
+      <div class="mini-term-log" id="miniLogA"></div>
+    </div>
+    <div class="mini-term">
+      <div class="mini-term-title">dirosan — tty1</div>
+      <div class="mini-term-log" id="miniLogB"></div>
+    </div>
+    <div class="mini-term">
+      <div class="mini-term-title">sys-stats — tty3</div>
+      <div class="mini-term-log" id="miniLogC"></div>
+    </div>
+  </div>
   <div class="avatar-phase" id="avatarPhase" style="display:none;">
     <div class="mix-stage">
       <div class="mix-grid" id="mixGrid"></div>
@@ -479,6 +582,6 @@
   </div>
 </div>
 
-<script type="module" src="js/main.js?v=7"></script>
+<script type="module" src="js/main.js?v=8"></script>
 </body>
 </html>
