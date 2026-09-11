@@ -41,6 +41,13 @@
     transition:opacity 0.7s ease;
   }
   .intro-overlay.fade-out{ opacity:0; pointer-events:none; }
+  .intro-skip{
+    position:absolute; right:24px; bottom:20px; z-index:5;
+    background:transparent; border:1px solid rgba(227,172,63,0.25); color:var(--dim);
+    font-family:inherit; font-size:11px; letter-spacing:0.04em; padding:7px 12px; border-radius:4px;
+    cursor:pointer; transition:color 0.2s ease, border-color 0.2s ease;
+  }
+  .intro-skip:hover, .intro-skip:focus-visible{ color:var(--white); border-color:rgba(227,172,63,0.5); }
   .intro-text{ font-size:15px; line-height:2.1; max-width:600px; width:100%; }
   .intro-line{ min-height:1.5em; }
   .guide-prefix{ color:var(--guide); }
@@ -131,10 +138,12 @@
     position:absolute; inset:0; z-index:2;
     background:radial-gradient(ellipse at center, rgba(5,5,6,0.8) 30%, rgba(5,5,6,0.2) 70%);
   }
-  .mix-text{
+  .mix-letters{
     position:absolute; inset:0; z-index:3; display:flex; align-items:center; justify-content:center;
-    font-size:clamp(24px, 4.2vw, 46px); font-weight:600; letter-spacing:0.08em; color:var(--amber);
-    text-shadow:0 0 16px rgba(227,172,63,0.5);
+  }
+  .mix-letters .wletter{
+    grid-template-columns:repeat(5, clamp(5px, 1.1vw, 9px));
+    grid-template-rows:repeat(7, clamp(5px, 1.1vw, 9px));
   }
   .avatar-label{ font-size:12px; letter-spacing:0.2em; text-transform:uppercase; color:var(--dim); }
   .avatar-loadbar{ width:220px; height:4px; background:#17140f; border-radius:2px; overflow:hidden; }
@@ -396,6 +405,7 @@
 <div class="ascii-bg" id="asciiBg"></div>
 
 <div class="intro-overlay" id="introOverlay">
+  <button class="intro-skip" id="introSkip" type="button">skip &rarr;</button>
   <div class="welcome-phase" id="welcomePhase">
     <div class="welcome-frame">
       <div class="welcome-frame-line outer"></div>
@@ -425,7 +435,7 @@
       <div class="mix-grid" id="mixGrid"></div>
       <div class="scan-sweep"></div>
       <div class="mix-fade"></div>
-      <div class="mix-text" id="mixText"></div>
+      <div class="welcome-letters mix-letters" id="mixText"></div>
     </div>
     <div class="avatar-label">Starting system</div>
     <div class="avatar-loadbar"><div class="avatar-loadbar-fill" id="avatarLoadFill"></div></div>
@@ -582,6 +592,6 @@
   </div>
 </div>
 
-<script type="module" src="js/main.js?v=8"></script>
+<script type="module" src="js/main.js?v=9"></script>
 </body>
 </html>

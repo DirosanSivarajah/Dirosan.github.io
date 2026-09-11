@@ -1,6 +1,8 @@
-// The landing sequence: a GUIDE persona types a boot narration, then an
-// avatar phase confirms the system is starting, before handing off to
-// the real terminal.
+// The landing sequence: a WELCOME banner, a GUIDE persona typing a boot
+// narration, three real panels booting in parallel, then a decrypt
+// wordmark, before handing off to the real terminal. Skippable at any
+// point — every timer is tracked so a skip cleanly cancels whatever's
+// still pending instead of leaving stray callbacks running.
 
 const INTRO_LINES = [
   'connection established.',
@@ -14,19 +16,23 @@ const INTRO_LINES = [
   'initiating ./boot.sh --full'
 ];
 
-const WORDMARK = 'DIROSAN';
-const SCRAMBLE_CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ#@$%&*01';
-
-// 5x7 bitmap dot-matrix font, just the letters "WELCOME" needs
-const WELCOME_FONT = {
+// 5x7 bitmap dot-matrix font — just the letters "WELCOME" and "DIROSAN" need.
+const BITMAP_FONT = {
   W: ['10001','10001','10001','10101','10101','11011','10001'],
   E: ['11111','10000','10000','11110','10000','10000','11111'],
   L: ['10000','10000','10000','10000','10000','10000','11111'],
   C: ['01111','10000','10000','10000','10000','10000','01111'],
   O: ['01110','10001','10001','10001','10001','10001','01110'],
-  M: ['10001','11011','10101','10101','10001','10001','10001']
+  M: ['10001','11011','10101','10101','10001','10001','10001'],
+  D: ['11110','10001','10001','10001','10001','10001','11110'],
+  I: ['11111','00100','00100','00100','00100','00100','11111'],
+  R: ['11110','10001','10001','11110','10100','10010','10001'],
+  S: ['01111','10000','10000','01110','00001','00001','11110'],
+  A: ['01110','10001','10001','11111','10001','10001','10001'],
+  N: ['10001','11001','10101','10101','10011','10001','10001']
 };
 const WELCOME_WORD = 'WELCOME';
+const WORDMARK = 'DIROSAN';
 
 // Three real panels of the desk, each with its own short, honest boot
 // log — what that panel actually does, not a claim about anything else.
@@ -71,27 +77,33 @@ function fillMixGrid(el) {
   }
 }
 
-function runDecrypt(el, reduceMotion) {
-  if (reduceMotion) {
-    el.textContent = WORDMARK;
-    return;
+function buildBitmapWord(word, container, reduceMotion) {
+  container.innerHTML = '';
+  let colOffset = 0;
+  for (const ch of word) {
+    const pattern = BITMAP_FONT[ch];
+    const letterEl = document.createElement('div');
+    letterEl.className = 'wletter';
+    for (let r = 0; r < pattern.length; r++) {
+      for (let c = 0; c < pattern[r].length; c++) {
+        const on = pattern[r][c] === '1';
+        const cell = document.createElement('div');
+        cell.className = 'wcell' + (on ? ' on' : '');
+        if (on) {
+          if (reduceMotion) {
+            cell.classList.add('lit');
+          } else {
+            const sweepDelay = Math.min(400, (colOffset + c) * 11);
+            cell.style.animationDelay = sweepDelay + 'ms';
+            requestAnimationFrame(() => cell.classList.add('lit'));
+          }
+        }
+        letterEl.appendChild(cell);
+      }
+    }
+    colOffset += pattern[0].length;
+    container.appendChild(letterEl);
   }
-  let revealed = 0;
-  const scrambleTimer = setInterval(() => {
-    let out = '';
-    for (let i = 0; i < WORDMARK.length; i++) {
-      out += i < revealed ? WORDMARK[i] : SCRAMBLE_CHARS[Math.floor(Math.random() * SCRAMBLE_CHARS.length)];
-    }
-    el.textContent = out;
-  }, 40);
-  const lockTimer = setInterval(() => {
-    revealed++;
-    if (revealed > WORDMARK.length) {
-      clearInterval(lockTimer);
-      clearInterval(scrambleTimer);
-      el.textContent = WORDMARK;
-    }
-  }, 130);
 }
 
 export function runIntro(reduceMotion, onComplete) {
@@ -99,6 +111,30 @@ export function runIntro(reduceMotion, onComplete) {
   const introText = document.getElementById('introText');
   const multiBoot = document.getElementById('multiBoot');
   const avatarPhase = document.getElementById('avatarPhase');
+  const skipBtn = document.getElementById('introSkip');
+
+  let done = false;
+  const timers = [];
+  function after(fn, ms) {
+    const id = setTimeout(fn, ms);
+    timers.push(id);
+    return id;
+  }
+  function finish() {
+    if (done) return;
+    done = true;
+    timers.forEach(clearTimeout);
+    skipBtn.removeEventListener('click', finish);
+    document.removeEventListener('keydown', onKeydown);
+    overlay.classList.add('fade-out');
+    setTimeout(() => { overlay.style.display = 'none'; }, reduceMotion ? 0 : 400);
+    onComplete();
+  }
+  function onKeydown(e) {
+    if (e.key === 'Escape') finish();
+  }
+  skipBtn.addEventListener('click', finish);
+  document.addEventListener('keydown', onKeydown);
 
   function appendRow(logEl, text, cls) {
     const row = document.createElement('div');
@@ -119,7 +155,7 @@ export function runIntro(reduceMotion, onComplete) {
         lines.forEach((line) => appendRow(logEl, line.text, line.ok ? 'ok' : ''));
         appendRow(logEl, 'done', 'done');
       });
-      setTimeout(showAvatarPhase, 250);
+      after(showAvatarPhase, 250);
       return;
     }
 
@@ -127,19 +163,19 @@ export function runIntro(reduceMotion, onComplete) {
     MINI_LOGS.forEach(({ id, gapMs, lines }) => {
       const logEl = document.getElementById(id);
       lines.forEach((line, i) => {
-        setTimeout(() => appendRow(logEl, line.text, line.ok ? 'ok' : ''), i * gapMs);
+        after(() => appendRow(logEl, line.text, line.ok ? 'ok' : ''), i * gapMs);
       });
       const lastLineAt = (lines.length - 1) * gapMs;
       const doneAt = lastLineAt + MINI_DONE_DELAY_MS;
-      setTimeout(() => appendRow(logEl, 'done', 'done'), doneAt);
+      after(() => appendRow(logEl, 'done', 'done'), doneAt);
       latestFinish = Math.max(latestFinish, doneAt);
     });
 
     // let the slowest terminal's "done" sit on screen for a beat, then
     // converge all three toward the center before handing off
-    setTimeout(() => {
+    after(() => {
       multiBoot.classList.add('converge');
-      setTimeout(showAvatarPhase, MINI_CONVERGE_MS);
+      after(showAvatarPhase, MINI_CONVERGE_MS);
     }, latestFinish + MINI_READ_PAUSE_MS);
   }
 
@@ -150,7 +186,7 @@ export function runIntro(reduceMotion, onComplete) {
     requestAnimationFrame(() => avatarPhase.classList.add('show'));
 
     const fill = document.getElementById('avatarLoadFill');
-    setTimeout(() => { fill.style.width = '100%'; }, reduceMotion ? 0 : 150);
+    after(() => { fill.style.width = '100%'; }, reduceMotion ? 0 : 150);
 
     const pctEl = document.getElementById('avatarPct');
     if (reduceMotion) {
@@ -163,16 +199,13 @@ export function runIntro(reduceMotion, onComplete) {
         pctEl.textContent = pct + '%';
         if (pct >= 100) clearInterval(pctTimer);
       }, 60);
+      timers.push(pctTimer);
     }
 
     fillMixGrid(document.getElementById('mixGrid'));
-    runDecrypt(document.getElementById('mixText'), reduceMotion);
+    buildBitmapWord(WORDMARK, document.getElementById('mixText'), reduceMotion);
 
-    setTimeout(() => {
-      overlay.classList.add('fade-out');
-      setTimeout(() => { overlay.style.display = 'none'; }, 700);
-      onComplete();
-    }, reduceMotion ? 400 : 2200);
+    after(finish, reduceMotion ? 400 : 2200);
   }
 
   function typeLine(i) {
@@ -195,7 +228,7 @@ export function runIntro(reduceMotion, onComplete) {
     if (reduceMotion) {
       msg.textContent = INTRO_LINES[i];
       cursor.remove();
-      setTimeout(() => typeLine(i + 1), 300);
+      after(() => typeLine(i + 1), 300);
       return;
     }
 
@@ -205,37 +238,12 @@ export function runIntro(reduceMotion, onComplete) {
       msg.textContent = text.slice(0, c + 1);
       c++;
       if (c < text.length) {
-        setTimeout(step, 22);
+        after(step, 22);
       } else {
         cursor.remove();
-        setTimeout(() => typeLine(i + 1), 550);
+        after(() => typeLine(i + 1), 550);
       }
     })();
-  }
-
-  function buildWelcomeLetters() {
-    const container = document.getElementById('welcomeLetters');
-    let colOffset = 0;
-    for (const ch of WELCOME_WORD) {
-      const pattern = WELCOME_FONT[ch];
-      const letterEl = document.createElement('div');
-      letterEl.className = 'wletter';
-      for (let r = 0; r < pattern.length; r++) {
-        for (let c = 0; c < pattern[r].length; c++) {
-          const on = pattern[r][c] === '1';
-          const cell = document.createElement('div');
-          cell.className = 'wcell' + (on ? ' on' : '');
-          if (on) {
-            const sweepDelay = Math.min(400, (colOffset + c) * 11);
-            cell.style.animationDelay = sweepDelay + 'ms';
-            requestAnimationFrame(() => cell.classList.add('lit'));
-          }
-          letterEl.appendChild(cell);
-        }
-      }
-      colOffset += pattern[0].length;
-      container.appendChild(letterEl);
-    }
   }
 
   function showWelcome() {
@@ -245,11 +253,11 @@ export function runIntro(reduceMotion, onComplete) {
       typeLine(0);
       return;
     }
-    buildWelcomeLetters();
+    buildBitmapWord(WELCOME_WORD, document.getElementById('welcomeLetters'), false);
     requestAnimationFrame(() => welcomePhase.classList.add('show'));
-    setTimeout(() => {
+    after(() => {
       welcomePhase.classList.add('leaving');
-      setTimeout(() => {
+      after(() => {
         welcomePhase.style.display = 'none';
         typeLine(0);
       }, 500);
