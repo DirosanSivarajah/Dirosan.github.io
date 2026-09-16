@@ -211,6 +211,32 @@
   .sidebar > .side-monitor{ flex:1; }
   .main-column > .side-monitor{ flex-shrink:0; }
 
+  /* ---------- ambient dressing: texture, not information ---------- */
+  .hazard-stripe{
+    height:5px; margin:-6px -34px 14px; flex-shrink:0;
+    background:repeating-linear-gradient(-45deg, rgba(227,172,63,0.35) 0 4px, transparent 4px 9px);
+    opacity:0.6;
+  }
+  .side-monitor .hazard-stripe{ margin:-4px -20px 14px; }
+  .code-texture{
+    position:absolute; right:24px; bottom:70px; z-index:0; width:260px;
+    font-size:9px; line-height:1.6; color:rgba(227,172,63,0.1); white-space:pre; pointer-events:none;
+  }
+  .sc-code-texture{
+    position:absolute; inset:0; z-index:0; padding:36px 0 0 36px;
+    font-size:9px; line-height:1.6; color:rgba(227,172,63,0.08); white-space:pre; pointer-events:none;
+    overflow:hidden;
+  }
+  .build-tag{
+    position:absolute; left:20px; bottom:10px; z-index:1;
+    font-size:9.5px; color:var(--dim); letter-spacing:0.04em; pointer-events:none;
+  }
+  .build-tag-inline{ font-size:0.75em; letter-spacing:0.04em; opacity:0.85; }
+  .module-list{
+    font-size:9.5px; letter-spacing:0.03em; margin:-6px 0 16px; flex-shrink:0;
+    opacity:0.7; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  }
+
   @media (max-width:1000px){
     .desk{ grid-template-columns:1fr; width:100%; max-width:700px; height:auto; }
     .sidebar{ height:auto; }
@@ -363,10 +389,10 @@
   @keyframes scPulse{ 0%,100%{ opacity:0.4; } 50%{ opacity:1; } }
   .sc-tag-box .path{ color:var(--white); }
 
-  /* ---------- frame lock: a HUD-style scan bracket around the schematic ---------- */
+  /* ---------- frame lock: a HUD-style scan bracket, reused on every panel ---------- */
   .frame-corner{
     position:absolute; width:16px; height:16px; border:1.5px solid rgba(227,172,63,0.55);
-    filter:drop-shadow(0 0 3px rgba(227,172,63,0.4));
+    filter:drop-shadow(0 0 3px rgba(227,172,63,0.4)); pointer-events:none;
     animation:frameBreathe 3s ease-in-out infinite; z-index:2;
   }
   .frame-corner.tl{ top:0; left:0; border-right:none; border-bottom:none; }
@@ -376,7 +402,7 @@
   @keyframes frameBreathe{ 0%,100%{ opacity:0.5; } 50%{ opacity:1; } }
 
   .frame-scan{
-    position:absolute; left:0; right:0; height:2px; top:0; z-index:2;
+    position:absolute; left:0; right:0; height:2px; top:0; z-index:2; pointer-events:none;
     background:linear-gradient(90deg, transparent, rgba(244,234,210,0.8), transparent);
     animation:frameScanMove 4s ease-in-out infinite alternate;
   }
@@ -440,7 +466,13 @@
 <div class="desk" id="desk">
   <div class="sidebar">
     <div class="side-monitor power-on" id="netMonPanel">
-      <div class="titlebar"><span>net-mon — tty2</span></div>
+      <span class="frame-corner tl"></span>
+      <span class="frame-corner tr"></span>
+      <span class="frame-corner bl"></span>
+      <span class="frame-corner br"></span>
+      <span class="frame-scan"></span>
+      <div class="titlebar"><span>net-mon — tty2</span><span class="build-tag-inline"></span></div>
+      <div class="hazard-stripe"></div>
       <div class="feed-title dim">live feed</div>
       <div class="feed-list" id="feedList"></div>
 
@@ -467,10 +499,27 @@
 
   <div class="main-column">
     <div class="crt power-on" id="crtPanel">
+      <span class="frame-corner tl"></span>
+      <span class="frame-corner tr"></span>
+      <span class="frame-corner bl"></span>
+      <span class="frame-corner br"></span>
+      <span class="frame-scan"></span>
       <div class="titlebar">
         <span>dirosan — tty1</span>
         <span id="clock">00:00:00</span>
       </div>
+      <div class="hazard-stripe"></div>
+      <div class="module-list dim">boot.js · feed.js · prompt.js · archive.js · gauges.js · session.js</div>
+      <pre class="code-texture">function startGauges(reduceMotion) {
+  const hasHeapInfo = !!(performance
+    && performance.memory);
+  if (!hasHeapInfo) {
+    heapBar.innerHTML = '';
+    heapPct.textContent = 'n/a';
+  }
+  const fps = frameCount;
+  frameCount = 0;</pre>
+      <div class="build-tag" id="buildTag"></div>
 
       <div class="boot-view" id="bootView">
         <div>
@@ -536,10 +585,21 @@
     </div>
 
     <div class="side-monitor power-on" id="sysStatsPanel">
-      <div class="titlebar"><span>sys-stats — tty3</span></div>
+      <div class="titlebar"><span>sys-stats — tty3</span><span class="build-tag-inline"></span></div>
+      <div class="hazard-stripe"></div>
       <div class="schematic-wrap">
         <div class="sc-scan-tag"><span class="white">dirosan</span><span class="dim">scanning<span class="dots"></span></span></div>
         <div class="sc-stage">
+          <pre class="sc-code-texture">.frame-scan{
+  position:absolute;
+  left:0; right:0; height:2px;
+  background:linear-gradient(90deg,
+    transparent,
+    rgba(244,234,210,0.8),
+    transparent);
+  animation:frameScanMove 4s
+    ease-in-out infinite alternate;
+}</pre>
           <span class="frame-corner tl"></span>
           <span class="frame-corner tr"></span>
           <span class="frame-corner bl"></span>

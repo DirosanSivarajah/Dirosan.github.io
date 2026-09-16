@@ -12,6 +12,13 @@ const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').match
 
 renderAsciiBg(document.getElementById('asciiBg'));
 
+const buildVersion = new URL(import.meta.url).searchParams.get('v');
+if (buildVersion) {
+  document.querySelectorAll('.build-tag, .build-tag-inline').forEach((el) => {
+    el.textContent = `build v${buildVersion}`;
+  });
+}
+
 const oddFile = document.getElementById('oddFile');
 const grantedBtn = document.getElementById('grantedBtn');
 const bootView = document.getElementById('bootView');
