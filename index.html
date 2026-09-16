@@ -18,6 +18,7 @@
     --dim:#5a5248;
     --white:#f4ead2;
     --guide:#8a9dfa;
+    --coral:#e2725b;
   }
   *{ box-sizing:border-box; }
   html,body{ margin:0; min-height:100vh; }
@@ -327,14 +328,6 @@
   .status-online{ color:var(--ok); }
   .status-dash{ color:var(--dim); }
 
-  .sync-ring{ transform:rotate(-90deg); vertical-align:middle; margin-right:6px; }
-  .sync-ring-track{ fill:none; stroke:rgba(227,172,63,0.2); stroke-width:3; }
-  .sync-ring-fill{
-    fill:none; stroke:var(--amber); stroke-width:3; stroke-linecap:round;
-    stroke-dasharray:38; stroke-dashoffset:38; animation:syncFill 4s linear infinite;
-  }
-  @keyframes syncFill{ from{ stroke-dashoffset:38; } to{ stroke-dashoffset:0; } }
-
   .back-line{ color:var(--dim); font-size:clamp(12px, 0.85vw, 15px); margin-top:20px; cursor:pointer; display:inline-block; }
   .back-line:hover{ color:var(--white); }
 
@@ -362,7 +355,7 @@
   .gauge-col{ flex:1; min-width:2px; border-radius:1px 1px 0 0; transition:height 0.2s ease; }
   .blk-low{ background:var(--ok); }
   .blk-mid{ background:var(--amber); }
-  .blk-high{ background:var(--coral, #e2725b); }
+  .blk-high{ background:var(--coral); }
 
   /* ---------- schematic: wireframe core + leader-line callouts to real connections ---------- */
   .schematic-wrap{ flex:1; min-height:0; display:flex; flex-direction:column; }
@@ -519,7 +512,7 @@
   }
   const fps = frameCount;
   frameCount = 0;</pre>
-      <div class="build-tag" id="buildTag"></div>
+      <div class="build-tag"></div>
 
       <div class="boot-view" id="bootView">
         <div>
